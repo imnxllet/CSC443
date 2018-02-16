@@ -1,6 +1,7 @@
 import sys
 import random
 
+
 letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 try:
     filename, n_tuples = sys.argv[1:3]
