@@ -1,0 +1,1 @@
+gcc -o part1-2 part1-2.c
