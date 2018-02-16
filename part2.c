@@ -1,4 +1,12 @@
 #include <vector>
+#include "bit.h"
+#include "part2.h"
+#include <time.h>
+#include <sys/timeb.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <strings.h>
+
 typedef const char* V;
 typedef std::vector<V> record;
 
@@ -71,17 +79,19 @@ typedef struct{
 void init_fixed_len_page(Page *page, int page_size, int slot_size){
     page->slot_size = slot_size;
     page->page_size = page_size;
-    page->free_slots = slot_size;
+    page->free_slots = fixed_len_page_capacity(page);
     page->used_slots = 0;
-
+    page->data = malloc(page_size);
 }
 
 /* Calculates the maximal number of records that fit in a page. */
-int fixed_len_page_capacity(Page *page){
 
-    return page->page_size / page->slot_size;
+//int fixed_len_page_capacity(Page *page){
+    /*Page size =  M*slot_size + 2 or 1 (to store M) + M/8 (M bits)*/
+ //   int num_slots_M = (page->page_size - sizeof(int)) / ((1/8) + page->slot_size);
+   // return num_slots_M;
 
-}
+//}
 
 /* Calculate the free space (number of free slots) in the page */
 int fixed_len_page_freelots(Page *page){
@@ -93,17 +103,18 @@ int fixed_len_page_freelots(Page *page){
 /* Add a record to the page
 *Return:
 *  record slot offset if successful,
-*  -1 if unsuccessful (page full)*/
+*  -1 if unsuccessful (page full)
+
+
+Page size =  M*slot_size + 2 or 1 (to store M) + M/8 (M bits)
+*/
 int add_fixed_len_page(Page *page, Record *r){
 
-    int slot = 0;
-    std::vector<Record> records = *(page->data);
-    for (std::vector<Record>::iterator it = records.begin(); it != records.end(); ++it) {
-        if (it->empty()) {
-            return slot;
-        }
-        slot ++;
+    /* To-do: should we check slot size fit record r..??*/
+    if (fixed_len_sizeof(r) <= page->slot_size){
+        return find_FreeSlot(page);
     }
+
     return -1;
 
 }
@@ -111,10 +122,17 @@ int add_fixed_len_page(Page *page, Record *r){
 /* Write a record into a given slot. */ 
 void write_fixed_len_page(Page *page, int slot, Record *r){
 
+    unsigned char* next_free_slot = (unsigned char *)page->data + slot * page->slot_size;
+    fixed_len_write(r, (void *)next_free_slot);
+
 }
 
-/* Read a record from the page from a given shot. */
+/* Read a record from the page from a given slot. */
 void read_fixed_len_page(Page *page, int slot, Record *r){
+
+    unsigned char* record_slot = (unsigned char *)page->data + (page->slot_size * slot);
+    // serialize the data at the dataslot and store in r
+    fixed_len_read((void *)record_slot, page->slot_size, r);
 
 }
 
