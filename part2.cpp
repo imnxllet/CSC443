@@ -91,6 +91,9 @@ void init_fixed_len_page(Page *page, int page_size, int slot_size){
     page->free_slots = fixed_len_page_capacity(page);
     page->used_slots = 0;
     page->data = malloc(page_size);
+    std::memset ((char*)page->data, 0, page_size);
+    std::memcpy((char*)page->data, page->free_slots, sizeof(int));
+
 
     printf("new page has %d for slot suze\n", page->slot_size);
     printf("new page has %d free slots\n", page->free_slots);
