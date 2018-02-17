@@ -150,6 +150,7 @@ int add_fixed_len_page(Page *page, Record *r){
 void write_fixed_len_page(Page *page, int slot, Record *r){
     printf("start writing record#2...\n");
     unsigned char* next_free_slot = (unsigned char *)page->data + sizeof(int) + page->slot_bitmap_size + (slot - 1) * page->slot_size;
+    togglePageBitmap(page, slot, 1);
     fixed_len_write(r, (void *)next_free_slot);
 
 }
@@ -213,12 +214,12 @@ int togglePageBitmap(Page *page, int slot_id, int value){
     //Toggle to 1
 
         //struct ext2_group_desc *group = (struct ext2_group_desc *)(disk + 2048);
-        int num_slots = fixed_len_page_capacity(page);
+        //int num_slots = fixed_len_page_capacity(page);
         int counter = 0;
         unsigned char *page_bitmap = (unsigned char *)page->data + sizeof(int);
 
         //printf("\nInode bitmap:");
-        for (int i =0; i < num_slots / 8; i++){
+        for (int i =0; i < (float)page->total_slot / (float)8; i++){
             unsigned char *byte = page_bitmap + i;
             for(int j = 0; j < 8; j++){
                 counter++;
