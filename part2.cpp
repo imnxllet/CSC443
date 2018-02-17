@@ -131,6 +131,7 @@ int add_fixed_len_page(Page *page, Record *r){
         int slot_id = find_FreeSlot(page);
         printf("Free slot id is: %d\n", slot_id);
         if(slot_id != -1){
+            printf("start writing record...\n");
             write_fixed_len_page(page, slot_id, r);
             return 0;
         }
@@ -142,8 +143,8 @@ int add_fixed_len_page(Page *page, Record *r){
 
 /* Write a record into a given slot. */ 
 void write_fixed_len_page(Page *page, int slot, Record *r){
-
-    unsigned char* next_free_slot = (unsigned char *)page->data + slot * page->slot_size;
+    printf("start writing record#2...\n");
+    unsigned char* next_free_slot = (unsigned char *)page->data + sizeof(int) + ((int *)page->data / 8) + (slot - 1) * page->slot_size;
     fixed_len_write(r, (void *)next_free_slot);
 
 }
@@ -151,7 +152,7 @@ void write_fixed_len_page(Page *page, int slot, Record *r){
 /* Read from a page's slot and store it to Record r. */
 void read_fixed_len_page(Page *page, int slot, Record *r){
 
-    unsigned char* record_slot = (unsigned char *)page->data + (page->slot_size * slot);
+    unsigned char* record_slot = (unsigned char *)page->data + sizeof(int) + ((int *)page->data / 8) + (slot - 1) * page->slot_size;
     // serialize the data at the dataslot and store in r
     fixed_len_read((void *)record_slot, page->slot_size, r);
 
