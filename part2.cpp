@@ -10,7 +10,7 @@
 int fixed_len_sizeof(Record *record){
     /* number of items inside the vector */
 
-    Record::iterator it;  // declare an iterator to a vector of strings
+    /*Record::iterator it;  // declare an iterator to a vector of strings
     int size = 0;
     int i = 0;
 
@@ -22,11 +22,11 @@ int fixed_len_sizeof(Record *record){
         i++;
     }
 
-    printf("This record has %d attributes...\n", record->size());
+    printf("This record has %d attributes...\n", record->size());*/
 
 
-
-    return size;
+    return record->size() * ATTRIBUTE_SIZE;
+    //return size;
 }
 
 /*Serialize the record to a byte array to be stored in buf*/
