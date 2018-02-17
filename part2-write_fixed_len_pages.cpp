@@ -9,7 +9,7 @@ int main(int argc, const char * argv[]) {
     }
     const char *csv_filename = argv[1];
     const char *page_filename = argv[2] ;
-    int page_size = atoi(argv[3]); 
+    int page_size = std::atoi(argv[3]); 
 
     // Open the page file for writing
     FILE *fp_write_page;
@@ -23,8 +23,10 @@ int main(int argc, const char * argv[]) {
     ssize_t read;
 
     fp_read_csv = fopen(csv_filename, "r");
-    if (fp_read_csv == NULL)
-        exit(EXIT_FAILURE);
+    if (fp_read_csv == NULL){
+        printf("Cannot open csv file\n");
+        return -1;
+    }
 
 
     int records_num = 0;
@@ -60,7 +62,7 @@ int main(int argc, const char * argv[]) {
             fflush(fp_write_page);
             printf("!!Iam here...\n");
 
-            free(page.data);
+            std::free(page.data);
 
             init_fixed_len_page(&page, page_size, fixed_len_sizeof(&record));
             pages_num++;
