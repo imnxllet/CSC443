@@ -1,6 +1,7 @@
 #include <sys/timeb.h>
 #include <stdio.h>
 #include "part2.h"
+#include<cstdlib>
 
 int main(int argc, const char * argv[]) {
     if (argc < 4) {
@@ -9,7 +10,7 @@ int main(int argc, const char * argv[]) {
     }
     const char *csv_filename = argv[1];
     const char *page_filename = argv[2] ;
-    int page_size = std::atoi(argv[3]); 
+    int page_size = atoi(argv[3]); 
 
     // Open the page file for writing
     FILE *fp_write_page;
@@ -62,7 +63,7 @@ int main(int argc, const char * argv[]) {
             fflush(fp_write_page);
             printf("!!Iam here...\n");
 
-            std::free(page.data);
+            free(page.data);
 
             init_fixed_len_page(&page, page_size, fixed_len_sizeof(&record));
             pages_num++;
