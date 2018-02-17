@@ -3,7 +3,7 @@
 #include <sys/timeb.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <strings.h>
+#include <string.h>
 #include "vector.h"
 
 /* Compute the number of bytes required to serialize record.*/
