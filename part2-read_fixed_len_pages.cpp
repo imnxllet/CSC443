@@ -43,7 +43,7 @@ int main(int argc, const char * argv[]) {
             read_fixed_len_page(&page, i, &record);
             printf("Record %d\n", i);
             for (int j = 0; j < record.size(); j++) {
-                std::cout << record.at(j);
+                printf("%s", record.at(j));
                 // fputs(record.at(j), dev_null);
                 if (j != record.size() - 1){
                     std::cout << ",";
