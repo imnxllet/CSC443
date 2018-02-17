@@ -5,7 +5,7 @@ all: write_fixed_len_pages
 
 
 
-library.o: part2.cpp
+library.o: part2.cpp part2.h
 	$(CC) $(CXXFLAGS) -o $@ -c $<
 
 

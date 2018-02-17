@@ -68,11 +68,17 @@ int main(int argc, const char * argv[]) {
             init_fixed_len_page(&page, page_size, fixed_len_sizeof(&record));
             pages_num++;
             new_page = 0;
-            add_fixed_len_page(&page, &record);
+            if(add_fixed_len_page(&page, &record) == -1){
+                printf("Record size > slot size, cannot add to pade.\n");
+                return -1;
+            }
 
         }else{
             printf("Adding a new record..\n");
-            add_fixed_len_page(&page, &record);
+            if(add_fixed_len_page(&page, &record) == -1){
+                printf("Record size > slot size, cannot add to pade.\n");
+                return -1;
+            }
 
         }
         //free(&record);
