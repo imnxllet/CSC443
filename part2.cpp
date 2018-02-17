@@ -18,6 +18,7 @@ int fixed_len_sizeof(Record *record){
 
         size += sizeof(char) * std::strlen(*it);
         printf("This value has strlen %d\n", std::strlen(*it));
+        printf("Get valuye %s\n", *it);
         i++;
     }
     printf("This record has %d attributes\n", i);
@@ -53,7 +54,7 @@ void fixed_len_write(Record *record, void *buf){
         char value[ATTRIBUTE_SIZE + 1];
         std::memcpy(value, (char*)buf + index, (ATTRIBUTE_SIZE + 1));
         value[ATTRIBUTE_SIZE] = '\0';
-        printf("Get valuye %s\n", value);
+        //printf("Get valuye %s\n", value);
         index += ATTRIBUTE_SIZE + 1;
 
         //attribute[ATTRIBUTE_SIZE] = '\0';
