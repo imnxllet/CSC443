@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <strings.h>
-#include <cstring>
+#include "vector.h"
 
 /* Compute the number of bytes required to serialize record.*/
 int fixed_len_sizeof(Record *record){
@@ -16,28 +16,43 @@ int fixed_len_sizeof(Record *record){
 
     for(it = record->begin(); it != record->end(); it++)    {
 
-        size += sizeof(char) * std::strlen((char *)*it);
-        printf("This value has strlen %d\n", std::strlen((char *) *it));
+        size += sizeof(char) * strlen((char *)*it);
+        printf("This value has strlen %d\n", strlen((char *) *it));
         printf("Get valuye %s\n", (char *)*it);
         i++;
     }
 
     printf("This record has %d attributes...\n", record->size());*/
+    int sum = 0;
+    Iterator iterator = vector_begin(record);
+    Iterator last = vector_end(record);
+    for (; !iterator_equals(&iterator, &last); iterator_increment(&iterator)) {
+        sum++;
+    }
 
 
-    return record->size() * ATTRIBUTE_SIZE;
+    return sum * ATTRIBUTE_SIZE;
     //return size;
 }
 
 /*Serialize the record to a byte array to be stored in buf*/
 void fixed_len_write(Record *record, void *buf){
 /* Write the bytes in the buf */    
-    Record::iterator it;  // declare an iterator to a vector of strings
+    /*Record::iterator it;  // declare an iterator to a vector of strings
     //int size = 0;
     int index = 0;
     for(it = record->begin(); it != record->end(); it++)    {
 
-        std::memcpy((char*)buf + index, *it, ATTRIBUTE_SIZE);
+        memcpy((char*)buf + index, *it, ATTRIBUTE_SIZE);
+        index += ATTRIBUTE_SIZE;
+    }*/
+    int index = 0;
+    Iterator iterator = vector_begin(record);
+    Iterator last = vector_end(record);
+    for (; !iterator_equals(&iterator, &last); iterator_increment(&iterator)) {
+        //*(int*)iterator_get(record) += 1;
+        memcpy((char*)buf + index, (char *)iterator_get(&iterator), ATTRIBUTE_SIZE);
+        printf("Value is %.*s\n", ATTRIBUTE_SIZE, (char *)iterator_get(&iterator));
         index += ATTRIBUTE_SIZE;
     }
 
@@ -54,15 +69,20 @@ void fixed_len_write(Record *record, void *buf){
     //printf("The buf has %d attributes.\n", values_count);
     int index = 0;
     for (int i = 0; i < values_count; i++) {
-        char value[ATTRIBUTE_SIZE + 1];
-        std::memcpy(value, (char*)buf + index, (ATTRIBUTE_SIZE + 1));
-        value[ATTRIBUTE_SIZE] = '\0';
+        char value[ATTRIBUTE_SIZE];
+        //memcpy(value, (char*)buf + index, (ATTRIBUTE_SIZE + 1));
+        memcpy(value, (char*)buf + index, (ATTRIBUTE_SIZE));
+        //value[ATTRIBUTE_SIZE] = '\0';
         //printf("Get valuye %s\n", value);
         index += ATTRIBUTE_SIZE + 1;
 
         //attribute[ATTRIBUTE_SIZE] = '\0';
         //printf("pushing record %d\n", i);
-        record->push_back(value);
+        vector_push_back(record, value);
+        //record->push_back(value);
+        //printf("Value is %.*s\n", ATTRIBUTE_SIZE, value);
+
+
         /*if (strlen(value) > 0) {
             record->push_back(attribute);
         }*/
@@ -94,8 +114,8 @@ void init_fixed_len_page(Page *page, int page_size, int slot_size){
     page->data = malloc(page_size);
 
     page->slot_bitmap_size =  (page->total_slot)/8 + ((page->total_slot) % 8 != 0);
-    std::memset ((char*)page->data, 0, page_size);
-    std::memset((int*)page->data, page->free_slots, sizeof(int));
+    memset ((char*)page->data, 0, page_size);
+    memset((int*)page->data, page->free_slots, sizeof(int));
 
 
     printf("new page has %d for slot suze\n", page->slot_size);
@@ -149,7 +169,7 @@ int add_fixed_len_page(Page *page, Record *r){
 /* Write a record into a given slot. */ 
 void write_fixed_len_page(Page *page, int slot, Record *r){
     printf("start writing record#2...\n");
-    unsigned char* next_free_slot = (unsigned char *)page->data + sizeof(int) + page->slot_bitmap_size + (slot - 1) * page->slot_size;
+    char* next_free_slot = (char *)((char *)page->data + sizeof(int) + page->slot_bitmap_size + ((slot - 1) * page->slot_size));
     togglePageBitmap(page, slot, 1);
     fixed_len_write(r, (void *)next_free_slot);
 
@@ -158,9 +178,35 @@ void write_fixed_len_page(Page *page, int slot, Record *r){
 /* Read from a page's slot and store it to Record r. */
 void read_fixed_len_page(Page *page, int slot, Record *r){
 
-    unsigned char* record_slot = (unsigned char *)page->data + sizeof(int) + page->slot_bitmap_size + (slot - 1) * page->slot_size;
+    char* record_slot = (char *)((char *)page->data + sizeof(int) + page->slot_bitmap_size + ((slot - 1) * page->slot_size));
     // serialize the data at the dataslot and store in r
-    fixed_len_read((void *)record_slot, page->slot_size, r);
+    //fixed_len_read((void *)record_slot, page->slot_size, r);
+
+    int values_count = page->slot_size / (ATTRIBUTE_SIZE); //=100
+    //printf("The buf has %d attributes.\n", values_count);
+    int index = 0;
+    for (int i = 0; i < values_count; i++) {
+        char value[ATTRIBUTE_SIZE];
+        //memcpy(value, (char*)buf + index, (ATTRIBUTE_SIZE + 1));
+        memcpy(value, (char*)record_slot + index, ATTRIBUTE_SIZE);
+        //value[ATTRIBUTE_SIZE] = '\0';
+        //printf("Get valuye %s\n", value);
+        index += ATTRIBUTE_SIZE;
+
+        //
+        //printf("pushing record %d\n", i);
+         printf("Value is %.*s\n", ATTRIBUTE_SIZE, value);
+         value[ATTRIBUTE_SIZE -1] = '\0';
+        
+        //r->push_back(value);
+        vector_push_back(r, value);
+       
+
+
+        /*if (strlen(value) > 0) {
+            record->push_back(attribute);
+        }*/
+    }
 
 }
 
@@ -173,9 +219,6 @@ void printBit(unsigned char *byte){
         else printf("0");
     }     
 }
-
-
-
 
 
 
@@ -206,6 +249,34 @@ int find_FreeSlot(Page *page){
     }
     //No Free Inode found.
     return -1;
+}
+
+int checkValue(Page *page, int slot_id){
+    //Toggle to 1
+
+        //struct ext2_group_desc *group = (struct ext2_group_desc *)(disk + 2048);
+        //int num_slots = fixed_len_page_capacity(page);
+        int counter = 0;
+        unsigned char *page_bitmap = (unsigned char *)page->data + sizeof(int);
+
+        //printf("\nInode bitmap:");
+        for (int i =0; i < (float)page->total_slot / (float)8; i++){
+            unsigned char *byte = page_bitmap + i;
+            for(int j = 0; j < 8; j++){
+                counter++;             
+                if(counter == slot_id){
+                    int bit = *byte & 1 << j;
+                    if(bit){//Set high
+                        return 1;
+                    }else{
+                        return 0;
+                    }
+                }
+               
+            }
+        }
+        //error
+        return -1;
 }
 
 

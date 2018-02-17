@@ -1,9 +1,9 @@
-#include <vector>
+#include "vector.h"
 #define ATTRIBUTE_SIZE 10
 
 
-typedef const char* V;
-typedef std::vector<V> Record;
+//typedef const char* V;
+typedef Vector Record;
 typedef struct{
     void *data;
     int page_size;
@@ -27,3 +27,4 @@ int togglePageBitmap(Page *page, int slot_id, int value);
 int find_FreeSlot(Page *page);
 int fixed_len_page_capacity(Page *page);
 void printBit(unsigned char *byte);
+int checkValue(Page *page, int slot_id);

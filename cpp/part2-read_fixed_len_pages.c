@@ -3,6 +3,7 @@
 #include "part2.h"
 #include<cstdlib>
 #include <iostream>
+#include <strings.h>
 
 int main(int argc, const char * argv[]) {
     if (argc < 3) {
@@ -16,7 +17,9 @@ int main(int argc, const char * argv[]) {
     // Open the page file for writing
     FILE *fp_read_page;
     fp_read_page = fopen(page_filename, "r");
-    
+    if(fp_read_page == NULL){
+        printf("Error in file opening\n");
+    }
 
 
     int records_num = 0;
@@ -33,22 +36,31 @@ int main(int argc, const char * argv[]) {
         
         Page page;
         init_fixed_len_page(&page, page_size, 1000);
-
-        fread(page.data, sizeof(char), page_size, fp_read_page);
+        bzero(page.data, page_size);
+        int read_bytes = fread(page.data, sizeof(char), page_size, fp_read_page);
         //fread(buf, 1, block_size, file_ptr);
-
+        printf("Read %d bytes\n", read_bytes);
         for (int i = 1; i <= page.total_slot; i ++) {
             records_num++;
             Record record;
+            
+            /*Empty slot*/
+            if(checkValue(&page, i) == 0){
+                printf("Slot %d has no record..\n", i);
+                continue;
+            }
+            printf("Slot %d has a record..\n", i);
+
             read_fixed_len_page(&page, i, &record);
-            printf("Record %d\n", i);
+            
+            /*printf("Record %d\n", i);
             for (int j = 0; j < record.size(); j++) {
                 printf("%s", record.at(j));
                 // fputs(record.at(j), dev_null);
                 if (j != record.size() - 1){
                     std::cout << ",";
                 }
-            }
+            }*/
             printf("\n");
             
         }
