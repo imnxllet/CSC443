@@ -12,11 +12,14 @@ int fixed_len_sizeof(Record *record){
 
     Record::iterator it;  // declare an iterator to a vector of strings
     int size = 0;
+    int i = 0;
 
     for(it = record->begin(); it != record->end(); it++)    {
 
         size += sizeof(char) * std::strlen(*it);
+        i++;
     }
+    printf("This record has %d attributes\n", i);
 
     return size;
 }
@@ -43,7 +46,7 @@ void fixed_len_write(Record *record, void *buf){
 
     printf("buffer size is %d\n", size);
     int values_count = size / (ATTRIBUTE_SIZE + 1); //=100
-    printf("The buf has %d attributes.\n", values_count);
+    //printf("The buf has %d attributes.\n", values_count);
     int index = 0;
     for (int i = 0; i < values_count; i++) {
         char value[ATTRIBUTE_SIZE + 1];
