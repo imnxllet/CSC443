@@ -55,6 +55,10 @@ int main(int argc, const char * argv[]) {
             printf("making a new page..\n");
             pages_num++;
             new_page = 0;
+            if(page.free_slots == 0){
+                printf("The page size is smaller than a record, abort.\n");
+                return -1;
+            }
         }
 
         if(page.free_slots == 0){/* Write to file and Initialize a new one */
