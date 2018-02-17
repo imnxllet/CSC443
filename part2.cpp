@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <strings.h>
+#include <cstring>
 
 /* Compute the number of bytes required to serialize record.*/
 int fixed_len_sizeof(Record *record){
@@ -28,7 +29,7 @@ void fixed_len_write(Record *record, void *buf){
     int index = 0;
     for(it = record->begin(); it != record->end(); it++)    {
 
-        memcpy((char*)buf + index, *it, ATTRIBUTE_SIZE);
+        std::memcpy((char*)buf + index, *it, ATTRIBUTE_SIZE);
         index += ATTRIBUTE_SIZE;
     }
 
@@ -46,7 +47,7 @@ void fixed_len_write(Record *record, void *buf){
     int index = 0;
     for (int i = 0; i < values_count; i++) {
         char value[ATTRIBUTE_SIZE + 1];
-        memcpy(value, (char*)buf + index, (ATTRIBUTE_SIZE + 1));
+        std::memcpy(value, (char*)buf + index, (ATTRIBUTE_SIZE + 1));
         value[ATTRIBUTE_SIZE] = '\0';
         index += ATTRIBUTE_SIZE + 1;
 

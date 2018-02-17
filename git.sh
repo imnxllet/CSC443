@@ -1,3 +1,3 @@
 git add .
-git commit -m "update from surface."
+git commit -m "update from mac."
 git push
