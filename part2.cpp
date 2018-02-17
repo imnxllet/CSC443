@@ -83,6 +83,7 @@ void init_fixed_len_page(Page *page, int page_size, int slot_size){
     page->used_slots = 0;
     page->data = malloc(page_size);
 
+    printf("new page has %d for slot suze\n", page->slot_size);
     printf("new page has %d free slots\n", page->free_slots);
 }
 
