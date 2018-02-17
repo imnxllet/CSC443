@@ -47,8 +47,8 @@ int main(int argc, const char * argv[]) {
         Record record;
 
         fixed_len_read((void *)line, (int) read, &record);
-        printf("Retrieved line of length %zu :\n", read);
-        printf("The line record is: %s\n", line);
+        //printf("Retrieved line of length %zu :\n", read);
+        //printf("The line record is: %s\n", line);
 
         if(new_page){
             init_fixed_len_page(&page, page_size, fixed_len_sizeof(&record));
