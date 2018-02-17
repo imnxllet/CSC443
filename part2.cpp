@@ -16,9 +16,9 @@ int fixed_len_sizeof(Record *record){
 
     for(it = record->begin(); it != record->end(); it++)    {
 
-        size += sizeof(char) * std::strlen(*it);
-        printf("This value has strlen %d\n", std::strlen(*it));
-        printf("Get valuye %s\n", *it);
+        size += sizeof(char) * std::strlen((char *)it);
+        printf("This value has strlen %d\n", std::strlen((char *)iit));
+        printf("Get valuye %s\n", (char *)iit);
         i++;
     }
     printf("This record has %d attributes\n", i);
