@@ -177,6 +177,7 @@ void printBit(unsigned char *byte){
 int find_FreeSlot(Page *page){
     unsigned char *slot_bitmap = (unsigned char *)page->data + sizeof(int);
     int num_slots = fixed_len_page_capacity(page);
+    printf("# of slots is: %d\n", num_slots);
 
     int counter = 0;
     //unsigned char *inode_bitmap = index(disk, group->bg_inode_bitmap);
