@@ -123,6 +123,7 @@ Page size =  M*slot_size + 2 or 1 (to store M) + M/8 (M bits)
 int add_fixed_len_page(Page *page, Record *r){
 
     /* To-do: should we check slot size fit record r..??*/
+    printf("Record size: %d, slot size %d\n", fixed_len_sizeof(r), page->slot_size);
     if (fixed_len_sizeof(r) <= page->slot_size){
         int slot_id = find_FreeSlot(page);
         if(slot_id != -1){
