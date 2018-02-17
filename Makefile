@@ -1,15 +1,16 @@
 CC=g++
 CXXFLAGS=-std=c++11 -Wall -g
 
-all: write_fixed_len_pages
-
-
+all: write_fixed_len_pages read_fixed_len_pages
 
 library.o: part2.cpp part2.h
 	$(CC) $(CXXFLAGS) -o $@ -c $<
 
 
 write_fixed_len_pages: part2-write_fixed_len_pages.cpp library.o
+	$(CC) $(CXXFLAGS) -o $@ $< library.o
+
+read_fixed_len_pages: part2-read_fixed_len_pages.cpp library.o
 	$(CC) $(CXXFLAGS) -o $@ $< library.o
 
 clean:
