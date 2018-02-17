@@ -126,6 +126,7 @@ int add_fixed_len_page(Page *page, Record *r){
     printf("Record size: %d, slot size %d\n", fixed_len_sizeof(r), page->slot_size);
     if (fixed_len_sizeof(r) <= page->slot_size){
         int slot_id = find_FreeSlot(page);
+        printf("Free slot id is: %d\n", slot_id);
         if(slot_id != -1){
             write_fixed_len_page(page, slot_id, r);
             return 0;
