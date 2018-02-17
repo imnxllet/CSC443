@@ -11,3 +11,6 @@ library.o: part2.cpp
 
 write_fixed_len_pages: part2-write_fixed_len_pages.cpp library.o
 	$(CC) $(CXXFLAGS) -o $@ $< library.o
+
+clean:
+	rm -f *.o *~ core sr *.dump *.tar tags
