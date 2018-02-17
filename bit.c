@@ -9,8 +9,6 @@
 #include "bit.h"
 #include <time.h>
 
-unsigned char *disk;
-
 
 /*Helper function for exercise to print bitmap.*/
 void printBit(unsigned char *byte){
@@ -60,7 +58,7 @@ int find_FreeSlot(Page *page){
 
 
 /*Update inode with id in inode bitmap to value. Adjust sb,group descriptor accordingly.*/
-int toggleInodeBitmap(Page *page, int slot_id, int value){
+int togglePageBitmap(Page *page, int slot_id, int value){
     //Toggle to 1
 
         //struct ext2_group_desc *group = (struct ext2_group_desc *)(disk + 2048);
@@ -95,56 +93,5 @@ int toggleInodeBitmap(Page *page, int slot_id, int value){
 }
 
 
-/*****
-*useless ..
-*
-******/
 
-
-
-/*Check if inode with inode_id is mark as used in bitmap. 1 as used, 0 as unused*/
-
-int checkInodeBit(unsigned char *disk, int inode_id){
-    //be aware that inode_num and inode_index are different.
-    inode_id = inode_id - 1;
-    struct ext2_group_desc *group = (struct ext2_group_desc *)(disk + EXT2_BLOCK_SIZE * 2 );
-    //struct ext2_super_block *sb = (struct ext2_super_block *)(disk + EXT2_BLOCK_SIZE);
-
-    unsigned char *inode_bitmap = index(disk, group->bg_inode_bitmap);
-
-    unsigned int count_of_eight = inode_id / 8;
-    unsigned int left = inode_id % 8 ;
-
-    unsigned char *byte = inode_bitmap + count_of_eight;
-    //e.g. 1 << 5 == 100000
-    int bit = *byte & 1 << left; //check bit 1 or 0
-    if(bit){
-        return 1;
-    }else{
-        return 0;
-    }
-}
-
-
-
-
-/*helper to extract string from beginning until it reaches length.*/
-char * substring(char *string, int length){
-    //char substring[length + 1];
-    //printf("length is %d\n", length);
-    char* substring = 0;
-    substring = (char *) malloc(sizeof(char) * (length + 1));
-
-    /*int c = 0;
-     while (c < length) {
-      substring[c] = string[c];
-      c++;
-    }
-    */
-
-    memcpy(substring,string,length);
-    //otherString[length] = 0;
-    substring[length] = '\0';
-    return substring;
-}
 

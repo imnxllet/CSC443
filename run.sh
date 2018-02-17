@@ -1,1 +1,1 @@
-gcc -o part1-2 part1-2.c
+g++ -Wall -std=c++11 -o write_fixed_len_pages part2-write_fixed_len_pages.cpp

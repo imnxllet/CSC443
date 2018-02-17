@@ -1,4 +1,3 @@
-#include <vector>
 #include "bit.h"
 #include "part2.h"
 #include <time.h>
@@ -6,9 +5,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <strings.h>
-
-typedef const char* V;
-typedef std::vector<V> record;
 
 /* Compute the number of bytes required to serialize record.*/
 int fixed_len_sizeof(Record *record){
@@ -28,12 +24,13 @@ int fixed_len_sizeof(Record *record){
 /*Serialize the record to a byte array to be stored in buf*/
 void fixed_len_write(Record *record, void *buf){
 /* Write the bytes in the buf */    
-        Record::iterator it;  // declare an iterator to a vector of strings
+    Record::iterator it;  // declare an iterator to a vector of strings
     int size = 0;
+    int index = 0;
+    for(it = record.begin(); it != record.end(); it++)    {
 
-    for(it = record.begin(); it != record.end(); it++,i++ )    {
-
-        strcat(buf, *it);
+        memcpy((char*)buf + index, *it, ATTRIBUTE_SIZE);
+        index += ATTRIBUTE_SIZE;
     }
 
 }
@@ -44,15 +41,17 @@ void fixed_len_write(Record *record, void *buf){
  void fixed_len_read(void *buf, int size, Record *record){
     /* Value is of 10 bytes long(ATTRIBUTE_SIZE) for each attribute. */
 
-    int values_count = size / ATTRIBUTE_SIZE;
+    int values_count = size / (ATTRIBUTE_SIZE + 1); //=100
+    printf("The buf has %d record.\n", values_count);
     int index = 0;
     for (int i = 0; i < values_count; i++) {
-        char value[ATTRIBUTE_SIZE];
-        strncpy(value, buf + index, ATTRIBUTE_SIZE);
+        char value[ATTRIBUTE_SIZE + 1];
+        memcpy(value, (char*)buf + index, (ATTRIBUTE_SIZE + 1));
         value[ATTRIBUTE_SIZE] = '\0';
-        index += ATTRIBUTE_SIZE;
+        index += ATTRIBUTE_SIZE + 1;
 
         //attribute[ATTRIBUTE_SIZE] = '\0';
+        printf("pushing record %d\n", i);
         record->push_back(value);
         /*if (strlen(value) > 0) {
             record->push_back(attribute);
@@ -112,7 +111,11 @@ int add_fixed_len_page(Page *page, Record *r){
 
     /* To-do: should we check slot size fit record r..??*/
     if (fixed_len_sizeof(r) <= page->slot_size){
-        return find_FreeSlot(page);
+        int slot_id = find_FreeSlot(page);
+        if(slot_id != -1){
+            write_fixed_len_page(page, slot_id, r);
+            return 0;
+        }
     }
 
     return -1;
@@ -127,7 +130,7 @@ void write_fixed_len_page(Page *page, int slot, Record *r){
 
 }
 
-/* Read a record from the page from a given slot. */
+/* Read from a page's slot and store it to Record r. */
 void read_fixed_len_page(Page *page, int slot, Record *r){
 
     unsigned char* record_slot = (unsigned char *)page->data + (page->slot_size * slot);
