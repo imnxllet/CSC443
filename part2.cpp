@@ -184,6 +184,7 @@ int find_FreeSlot(Page *page){
     for (int i =0; i < num_slots / 8; i++){
 
         unsigned char *byte = slot_bitmap + i;
+        printBit(byte);
         for(int j = 0; j < 8; j++){
             counter++;
             int bit = *byte & 1 << j; //check bit 1 or 0
