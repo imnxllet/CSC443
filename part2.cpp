@@ -14,13 +14,23 @@ int fixed_len_sizeof(Record *record){
     int size = 0;
     int i = 0;
 
-    for(it = record->begin(); it != record->end(); it++)    {
+    /*for(it = record->begin(); it != record->end(); it++)    {
 
-        size += sizeof(char) * std::strlen((char *)it);
-        printf("This value has strlen %d\n", std::strlen((char *)iit));
-        printf("Get valuye %s\n", (char *)iit);
+        size += sizeof(char) * std::strlen(*it);
+        printf("This value has strlen %d\n", std::strlen(*it));
+        printf("Get valuye %s\n", *it);
         i++;
+    }*/
+
+    printf("This record has %d attributes...\n", record->size());
+
+    for (unsigned int j = 0; j < record->size(); j++){
+        // copy the string into the buf
+        size += sizeof(char) * std::strlen(record->at(j));
+        printf("This value has strlen %d\n", std::strlen(record->at(j)));
+        printf("Get valuye %s\n", record->at(j));
     }
+
     printf("This record has %d attributes\n", i);
 
     return size;
