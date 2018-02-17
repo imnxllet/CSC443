@@ -88,15 +88,20 @@ typedef struct{
 void init_fixed_len_page(Page *page, int page_size, int slot_size){
     page->slot_size = slot_size;
     page->page_size = page_size;
+    page->total_slot = fixed_len_page_capacity(page);
     page->free_slots = fixed_len_page_capacity(page);
     page->used_slots = 0;
     page->data = malloc(page_size);
+
+    page->slot_bitmap_size =  (page->total_slot)/8 + ((page->total_slot) % 8 != 0);
     std::memset ((char*)page->data, 0, page_size);
     std::memset((int*)page->data, page->free_slots, sizeof(int));
 
 
     printf("new page has %d for slot suze\n", page->slot_size);
     printf("new page has %d free slots\n", page->free_slots);
+    printf("new page has %d bytes reserve for bitmap\n", page->slot_bitmap_size);
+
 }
 
 /* Calculates the maximal number of records that fit in a page. */
@@ -144,7 +149,7 @@ int add_fixed_len_page(Page *page, Record *r){
 /* Write a record into a given slot. */ 
 void write_fixed_len_page(Page *page, int slot, Record *r){
     printf("start writing record#2...\n");
-    unsigned char* next_free_slot = (unsigned char *)page->data + sizeof(int) + ((int *)page->data / 8) + (slot - 1) * page->slot_size;
+    unsigned char* next_free_slot = (unsigned char *)page->data + sizeof(int) + page->slot_bitmap_size + (slot - 1) * page->slot_size;
     fixed_len_write(r, (void *)next_free_slot);
 
 }
@@ -152,7 +157,7 @@ void write_fixed_len_page(Page *page, int slot, Record *r){
 /* Read from a page's slot and store it to Record r. */
 void read_fixed_len_page(Page *page, int slot, Record *r){
 
-    unsigned char* record_slot = (unsigned char *)page->data + sizeof(int) + ((int *)page->data / 8) + (slot - 1) * page->slot_size;
+    unsigned char* record_slot = (unsigned char *)page->data + sizeof(int) + page->slot_bitmap_size + (slot - 1) * page->slot_size;
     // serialize the data at the dataslot and store in r
     fixed_len_read((void *)record_slot, page->slot_size, r);
 
@@ -237,4 +242,5 @@ int togglePageBitmap(Page *page, int slot_id, int value){
         //error
         return -1;
 }
+
 

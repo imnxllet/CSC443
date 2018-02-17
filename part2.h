@@ -10,6 +10,8 @@ typedef struct{
     int slot_size;
     int free_slots;
     int used_slots;
+    int total_slot;
+    int slot_bitmap_size;
 } Page;
 
 
