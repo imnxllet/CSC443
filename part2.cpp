@@ -26,9 +26,9 @@ int fixed_len_sizeof(Record *record){
 
     for (unsigned int j = 0; j < record->size(); j++){
         // copy the string into the buf
-        size += sizeof(char) * std::strlen(*(record[j]));
-        printf("This value has strlen %d\n", std::strlen(*(record[j])));
-        printf("Get valuye %s\n", *(record[j]));
+        size += sizeof(char) * std::strlen(record[j]);
+        printf("This value has strlen %d\n", std::strlen(record[j]));
+        printf("Get valuye %s\n", record[j]);
     }
 
     printf("This record has %d attributes\n", i);
