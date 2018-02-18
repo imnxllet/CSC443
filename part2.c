@@ -5,6 +5,9 @@
 #include <stdio.h>
 #include <string.h>
 #include "vector.h"
+#include <strings.h>
+
+
 /*use open source vector for C https://github.com/goldsborough/vector */
 /* Compute the number of bytes required to serialize record.*/
 int fixed_len_sizeof(Record *record){
