@@ -55,7 +55,7 @@ void fixed_len_write(Record *record, void *buf){
     for (; !iterator_equals(&iterator, &last); iterator_increment(&iterator)) {
         //*(int*)iterator_get(record) += 1;
         memcpy((char*)buf + index, (char *)iterator_get(&iterator), ATTRIBUTE_SIZE);
-        printf("Value is %.*s\n", ATTRIBUTE_SIZE, (char *)iterator_get(&iterator));
+        //printf("Value is %.*s\n", ATTRIBUTE_SIZE, (char *)iterator_get(&iterator));
         index += ATTRIBUTE_SIZE;
     }
 
@@ -67,7 +67,7 @@ void fixed_len_write(Record *record, void *buf){
  void fixed_len_read(void *buf, int size, Record *record){
     /* Value is of 10 bytes long(ATTRIBUTE_SIZE) for each attribute. */
 
-    printf("buffer size is %d\n", size);
+    //printf("buffer size is %d\n", size);
     int values_count = size / (ATTRIBUTE_SIZE + 1); //=100
     //printf("The buf has %d attributes.\n", values_count);
     int index = 0;
@@ -121,9 +121,9 @@ void init_fixed_len_page(Page *page, int page_size, int slot_size){
     memset((int*)page->data, page->free_slots, sizeof(int));
 
 
-    printf("new page has %d for slot suze\n", page->slot_size);
-    printf("new page has %d free slots\n", page->free_slots);
-    printf("new page has %d bytes reserve for bitmap\n", page->slot_bitmap_size);
+    //printf("new page has %d for slot suze\n", page->slot_size);
+    //printf("new page has %d free slots\n", page->free_slots);
+    //printf("new page has %d bytes reserve for bitmap\n", page->slot_bitmap_size);
 
 }
 
@@ -157,9 +157,9 @@ int add_fixed_len_page(Page *page, Record *r){
     printf("Record size: %d, slot size %d\n", fixed_len_sizeof(r), page->slot_size);
     if (fixed_len_sizeof(r) <= page->slot_size){
         int slot_id = find_FreeSlot(page);
-        printf("Free slot id is: %d\n", slot_id);
+        printf("Free slot id on this page is: %d\n", slot_id);
         if(slot_id != -1){
-            printf("start writing record...\n");
+            //printf("start writing record...\n");
             write_fixed_len_page(page, slot_id, r);
             return 0;
         }
@@ -171,7 +171,7 @@ int add_fixed_len_page(Page *page, Record *r){
 
 /* Write a record into a given slot. */ 
 void write_fixed_len_page(Page *page, int slot, Record *r){
-    printf("start writing record#2...\n");
+    //printf("start writing record#2...\n");
     char* next_free_slot = (char *)((char *)page->data + sizeof(int) + page->slot_bitmap_size + ((slot - 1) * page->slot_size));
     togglePageBitmap(page, slot, 1);
     fixed_len_write(r, (void *)next_free_slot);
@@ -188,9 +188,11 @@ void read_fixed_len_page(Page *page, int slot, Record *r){
     int values_count = page->slot_size / (ATTRIBUTE_SIZE); //=100
     //printf("The buf has %d attributes.\n", values_count);
     int index = 0;
+
     for (int i = 0; i < values_count; i++) {
         char value[ATTRIBUTE_SIZE];
         //memcpy(value, (char*)buf + index, (ATTRIBUTE_SIZE + 1));
+
         memcpy(value, (char*)record_slot + index, ATTRIBUTE_SIZE);
         //value[ATTRIBUTE_SIZE] = '\0';
         //printf("Get valuye %s\n", value);
@@ -198,14 +200,14 @@ void read_fixed_len_page(Page *page, int slot, Record *r){
 
         //
         //printf("pushing record %d\n", i);
-         printf("Value is %.*s\n", ATTRIBUTE_SIZE, value);
+         printf("%.*s, ", ATTRIBUTE_SIZE, value);
          value[ATTRIBUTE_SIZE -1] = '\0';
         
         //r->push_back(value);
+
         vector_push_back(r, value);
+
        
-
-
         /*if (strlen(value) > 0) {
             record->push_back(attribute);
         }*/
@@ -239,55 +241,67 @@ void init_heapfile(Heapfile *heapfile, int page_size, FILE *file){
     heapfile->file_ptr = file;
     heapfile->page_size = page_size;
     heapfile->directory_num_pages = 0;
+    heapfile->d_num = 0;
 }
 
 PageID assignPageID(Heapfile *heapfile, Page *page){
     rewind(heapfile->file_ptr);
     int num_of_dslot = heapfile->directory_num_pages;
-    int directory[num_of_dslot];
+    int *directory = malloc(heapfile->page_size);
+
+   // int directory[num_of_dslot];
     int next_d_page = 0;
 
 
     int found_slot = 0;
     /* Loop over all directory page to find available slot*/
+    bzero(directory, heapfile->page_size);
+    
     while(!found_slot){
         //rewind(heapfile->file_ptr);
-        bzero(directory, heapfile->page_size);
         fseek(heapfile->file_ptr, next_d_page, SEEK_SET);
-        fread(directory, sizeof(int), num_of_dslot, heapfile->file_ptr);
+        fread(directory, 1, heapfile->page_size, heapfile->file_ptr);
+       
 
         for(int i = 0; i < num_of_dslot - 2; i += 2){
 
             /*Found*/
             if(directory[i] == 0){
                 /*Not page store in this offset, store here*/
-                printf("To allocate the page at %d\n", i + 1);
-                printf("Offset is %d\n", (i + 1) * (heapfile->page_size));
-                printf("Free slot for the new data page is %d\n", page->free_slots);
+                printf("Directort Slot id for this page is: %d\n", i / 2 + 1);
+                //printf("Offset is %d\n", (i + 1) * (heapfile->page_size));
+                //printf("Free slot for the new data page is %d\n", page->free_slots);
 
-                directory[i] = next_d_page + (i + 1) * (heapfile->page_size);
+                directory[i] = next_d_page + (i / 2 + 1) * (heapfile->page_size);
                 directory[i+1] = page->free_slots;
 
-                rewind(heapfile->file_ptr);
-                fwrite(directory, sizeof(int), num_of_dslot, heapfile->file_ptr);
+                //rewind(heapfile->file_ptr);
+                fseek (heapfile->file_ptr, next_d_page, SEEK_SET);
+                fwrite(directory, 1, heapfile->page_size, heapfile->file_ptr);
                 fflush(heapfile->file_ptr);
                 
-                return (next_d_page + (i + 1) * (heapfile->page_size))/(heapfile->page_size);
+                return (next_d_page + (i / 2 + 1) * (heapfile->page_size))/(heapfile->page_size);
             }
 
         }
 
         /* Not found in this slot, see go through next directory or make a new one. */
         /* First directory full, check if we have a new */
+
         if(directory[num_of_dslot - 2] == 0){/*Need to make a new directory page first */
             fseek (heapfile->file_ptr, 0, SEEK_END);
             int size = ftell(heapfile->file_ptr);
             directory[num_of_dslot - 2] = size;
+            fseek (heapfile->file_ptr, next_d_page, SEEK_SET);
+            fwrite(directory, 1, heapfile->page_size, heapfile->file_ptr);
+            fflush(heapfile->file_ptr);
             makeDirectoryPageAndAddpage(heapfile);
+            printf("making a new d\n");
+            printf("size\n");
 
         }
         //New one exsit or already made, jump to there.
-
+        
         next_d_page = directory[num_of_dslot - 2];
 
         
@@ -301,19 +315,25 @@ PageID assignPageID(Heapfile *heapfile, Page *page){
 
 
 void makeDirectoryPageAndAddpage(Heapfile *heapfile){
-    int num_of_dslot = (heapfile->page_size) / sizeof(int);
-    int directory[num_of_dslot];
+    heapfile->d_num++;
+    
+    int *directory = malloc(heapfile->page_size);
+    //int directory[num_of_dslot];
     bzero(directory, heapfile->page_size);
-
-    fwrite(directory, sizeof(int), num_of_dslot, heapfile->file_ptr);
+    fseek (heapfile->file_ptr, 0, SEEK_END);
+    fwrite(directory, 1, heapfile->page_size, heapfile->file_ptr);
     fflush(heapfile->file_ptr);
-    heapfile->directory_num_pages = num_of_dslot;
+
+    int num_of_dslot = ((heapfile->page_size) / sizeof(int)) / 2 * 2;
+    if(heapfile->directory_num_pages == 0){
+        heapfile->directory_num_pages = num_of_dslot;
+    }
 }
 
 /**
  * Allocate another page in the heapfile. This grows the file by a page.
  */
-PageID alloc_page(Heapfile *heapfile) {
+PageID alloc_page(Heapfile *heapfile, Page *page) {
     /* If first time allocate, we need to make a new directory page..*/
     int size = 0;
     if(heapfile->file_ptr != NULL){
@@ -326,7 +346,7 @@ PageID alloc_page(Heapfile *heapfile) {
         printf("Heapfile file_ptr is NULL!\n");
     }
 
-    /* An empty heap file. */
+    /* An empty heap file. make the directory*/
     if (size == 0){
       // print your error message here
         printf("The heap file needs a directory page before adding a data page..\n");
@@ -341,9 +361,9 @@ PageID alloc_page(Heapfile *heapfile) {
     }
     /* Allocate a new page to the end of heap file*/
     
-    Page page;
-    init_fixed_len_page(&page, heapfile->page_size, 100 * ATTRIBUTE_SIZE);
-    int page_id = assignPageID(heapfile, &page);
+    //Page page;
+    //init_fixed_len_page(&page, heapfile->page_size, 100 * ATTRIBUTE_SIZE);
+    int page_id = assignPageID(heapfile, page);
 
     return page_id;
 
@@ -392,23 +412,27 @@ void init_RecordIterator(RecordIterator* iterator, Heapfile *heapfile){
     iterator->hf = heapfile;
 
     /*Number of pages offset in a directory*/
-    int num_of_dslot = heapfile->directory_num_pages;
-    int directory[num_of_dslot];
+    //int num_of_dslot = heapfile->directory_num_pages;
+    int *directory = malloc(heapfile->page_size);
+
+    //int directory[num_of_dslot];
     rewind(heapfile->file_ptr);
     bzero(directory, heapfile->page_size);
-    fread(directory, sizeof(int), num_of_dslot, heapfile->file_ptr);
+    fread(directory, 1, heapfile->page_size, heapfile->file_ptr);
     iterator->page_id_in_directory = 0;
 
     /*Current directory*/
     iterator->current_directory_page = directory;
 
     /*Current page offset*/
-    iterator->page_offset = directory[0];
+    iterator->page_offset = 0;
     iterator->has_next_directory = 1;
     iterator->record_id = 0;
+    
+    iterator->page_num = 0;
+    iterator->d_num = 0;
+    //init_fixed_len_page(iterator->current_page, heapfile->page_size, 1000);
     iterator->current_page = NULL;
-
-
 
     
     //Page data_page;
@@ -418,22 +442,61 @@ void init_RecordIterator(RecordIterator* iterator, Heapfile *heapfile){
     //current_page = data_page;
 }
 
-int getNextUsedPage(RecordIterator* iterator){
+int getNextUsedPage(RecordIterator* iterator, Page* page, int *directory){
     /*From the already checked page index, we find the next page in this directory.*/
     Heapfile *heapfile = iterator->hf;
+
+    /* First time, no page*/
+    if(iterator->current_page == NULL){
+        printf("Setting up the first directory..\n");
+        
+        iterator->d_num++;
+
+        //rewind(heapfile->file_ptr);
+        
+        bzero(directory, (iterator->hf)->page_size);
+        rewind(heapfile->file_ptr);
+        fread(directory, 1, heapfile->page_size, heapfile->file_ptr);
+
+
+        iterator->page_id_in_directory = 0;
+        heapfile->directory_num_pages =((heapfile->page_size) / sizeof(int)) / 2 * 2;
+
+        /*Update Current directory*/
+        iterator->current_directory_page = directory;
+        for(int j=0; j < heapfile->directory_num_pages - 2;j++){
+            printf("Directory #%d: %d\n", j, directory[j]);
+        }
+    }
+
     for(int i = iterator->page_id_in_directory * 2; i < heapfile->directory_num_pages - 2; i += 2){
+        //printf("break #%d\n", i);
         iterator->page_id_in_directory++;
 
         /*Found*/
         if(iterator->current_directory_page[i] != 0){
-            Page data_page;
-            init_fixed_len_page(&data_page, heapfile->page_size, 1000);
+            //printf("No #%d\n", i);
+            iterator->page_num ++;
+            //Page data_page;
+            //init_fixed_len_page(&data_page, heapfile->page_size, 1000);
             //rewind((iterator->hf)->file_ptr);
 
-            fseek(heapfile->file_ptr, iterator->current_directory_page[i], SEEK_SET);
-            fread(data_page.data, (iterator->hf)->page_size, 1, heapfile->file_ptr);
+            //fseek(heapfile->file_ptr, iterator->current_directory_page[i], SEEK_SET);
+            
+            //fread(page->data, (iterator->hf)->page_size, 1, heapfile->file_ptr);
 
-            iterator->current_page = &data_page;
+            read_page(iterator->hf, ((i / 2 + 1)) + (iterator->page_offset/heapfile->page_size) ,page);
+
+            //printf("This page has total slot of : %d\n", data_page.total_slot);
+            
+            //init_fixed_len_page(iterator->current_page, heapfile->page_size, 1000);
+            iterator->current_page = page;
+            //iterator->total_slot_in_page = (iterator->current_page)->total_slot;
+            
+
+
+            //printf("This page has total slot of : %d\n", (iterator->current_page)->total_slot);
+            printf("Get page id %d\n", ((i / 2 + 1)) + (iterator->page_offset/heapfile->page_size));
 
             /* Sucessfully find a page.*/
             return 1;
@@ -451,16 +514,22 @@ int getNextUsedPage(RecordIterator* iterator){
     }else{
     /* Has a new directory to check..*/  
     
-        int directory[heapfile->directory_num_pages];
+        //int directory[heapfile->directory_num_pages];
+        //int *directory = malloc(heapfile->page_size);
+        iterator->d_num++;
+
         //rewind(heapfile->file_ptr);
-        bzero(directory, (iterator->hf)->page_size);
+        //bzero(directory, (iterator->hf)->page_size);
         fseek(heapfile->file_ptr, iterator->current_directory_page[heapfile->directory_num_pages - 2], SEEK_SET);
 
-        fread(directory, sizeof(int), heapfile->directory_num_pages, heapfile->file_ptr);
+        printf("@new directory start at %d\n", iterator->current_directory_page[heapfile->directory_num_pages - 2]);
+        iterator->page_offset = iterator->current_directory_page[heapfile->directory_num_pages - 2];
+        fread(directory, 1, heapfile->page_size, heapfile->file_ptr);
         iterator->page_id_in_directory = 0;
 
         /*Update Current directory*/
         iterator->current_directory_page = directory;
+        iterator->record_id = 0;
 
         /* A new directory to iterate */
         return 0;  
@@ -473,22 +542,39 @@ int getNextUsedPage(RecordIterator* iterator){
 
 Record next(RecordIterator* iterator){
 
-    return iterator->next_record;
+    return *(iterator->next_record);
     
 
 
 
 }
 
-bool hasnext(RecordIterator* iterator){
+bool hasnext(RecordIterator* iterator, Page* page, Record *record, int *directory){
 
     //Should move to next page or next directory
-    while(1){
+    printf("\nStart to find next record..\n");
+
+    int has_next= 0;
+    while(has_next == 0){
+
         /* we need a new page when we first start iterate or the current page is done. */
-        if (iterator->current_page == NULL || (iterator->record_id > (iterator->current_page)->total_slot)) {
+        printf("current record_id is %d\n", iterator->record_id);
+        if (iterator->current_page == NULL || (iterator->record_id  >= (iterator->current_page)->total_slot)) {
+            
+            /*if(iterator->current_page == NULL){
+                printf("First init\n");
+            }else if(iterator->record_id > (iterator->current_page)->total_slot){
+                printf("No more record to read in this page..\n");
+            }*/
+
+
+            printf("Go to next page\n");
 
             /*1 - has next page, 0 - move to new directory, -1 - No next record*/
-            int has_next_page = getNextUsedPage(iterator);
+            int has_next_page = getNextUsedPage(iterator, page, directory);
+            //printf("!!!This page has total slot of : %d\n", (iterator->current_page)->total_slot);
+            printf("Has Nextpage value idicator; %d\n", has_next_page);
+            printf("We are at record id #%d\n", iterator->record_id);
             iterator->record_id = 0;
 
             if(has_next_page == -1){
@@ -496,32 +582,55 @@ bool hasnext(RecordIterator* iterator){
 
             /* Check if new directory has page.*/
             }else if(has_next_page == 0){
-                has_next_page = getNextUsedPage(iterator);
+                printf("I am here..\n");
+                has_next_page = getNextUsedPage(iterator, page, directory);
                 /* Assuming a directory that has no available page will not have a linked new directory*/
                 if(has_next_page == -1){
                     return false;
                 }
             }
+            //printf("!!!This page has total slot of : %d\n", (iterator->current_page)->total_slot);
         }
 
          /* The new page is stored in iterator. */
          /* Check if this page has record to read. */
+       // printf("checking record %d\n", iterator->record_id + 1);
+        printf("This page has total slot of : %d\n", (iterator->current_page)->total_slot);
+
         for(int i = iterator->record_id + 1; i <= (iterator->current_page)->total_slot; i++){
+            printf("checkingggg record %d\n", iterator->record_id + 1);
             /* Has a record in this slot.*/
-            if(checkValue(iterator->current_page, i)){
+            iterator->record_id ++;
 
-                Record record;
-                read_fixed_len_page((iterator->current_page)->data, i, &record);
 
+
+            /* wrong ...*/
+            //read_fixed_len_page((iterator->current_page)->data, i, record);
+            if(checkValue(iterator->current_page, i) == 1){
+                //Record record;
+                printf("I am here\n");
+                
+
+                read_fixed_len_page(iterator->current_page, i, record);
+                 //printf("checking record %d\n", iterator->record_id + 1);
                 iterator->next_record = record;
 
                 //iterator->current_record_slot += 1;
-                iterator->record_id ++;
+                
 
+                has_next = 1;
                 return true;
 
+
+
+
+
+
             }
+            
         }
+        printf("No next record found...\n");
+        return false;
     }
 
     return false;
@@ -548,15 +657,15 @@ void printBit(unsigned char *byte){
 int find_FreeSlot(Page *page){
     unsigned char *slot_bitmap = (unsigned char *)page->data + sizeof(int);
     int num_slots = fixed_len_page_capacity(page);
-    printf("# of slots is: %data\n", num_slots);
+    printf("This page has %d slots\n", num_slots);
 
     int counter = 0;
     //unsigned char *inode_bitmap = index(disk, group->bg_inode_bitmap);
     //printf("\nInode bitmap:");
     for (int i =0; i < ((float)num_slots / (float)8); i++){
-        printf("checking byte...\n");
+        //printf("checking byte...\n");
         unsigned char *byte = slot_bitmap + i;
-        printBit(byte);
+        //printBit(byte);
         for(int j = 0; j < 8; j++){
             //printf("checking bit...\n");
             counter++;

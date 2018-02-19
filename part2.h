@@ -20,6 +20,7 @@ typedef struct {
 	FILE *file_ptr;
 	int page_size;
 	int directory_num_pages;
+	int d_num;
 } Heapfile;
 
 typedef int PageID;
@@ -37,7 +38,10 @@ typedef struct  {
     Page* current_page;
     int page_id_in_directory;
     int has_next_directory;
-    Record next_record;
+    Record* next_record;
+    int page_num;
+    int d_num;
+    int total_slot_in_page;
 } RecordIterator;
 
 void init_fixed_len_page(Page *page, int page_size, int slot_size);
@@ -53,16 +57,18 @@ int find_FreeSlot(Page *page);
 int fixed_len_page_capacity(Page *page);
 void printBit(unsigned char *byte);
 int checkValue(Page *page, int slot_id);
+
+void init_heapfile(Heapfile *heapfile, int page_size, FILE *file);
 PageID assignPageID(Heapfile *heapfile, Page *page);
 void makeDirectoryPageAndAddpage(Heapfile *heapfile);
-PageID alloc_page(Heapfile *heapfile);
+PageID alloc_page(Heapfile *heapfile, Page *page);
 void read_page(Heapfile *heapfile, PageID pid, Page *page);
 void write_page(Page *page, Heapfile *heapfile, PageID pid);
 void init_RecordIterator(RecordIterator* iterator, Heapfile *heapfile);
 
-int getNextUsedPage(RecordIterator* iterator);
+int getNextUsedPage(RecordIterator* iterator, Page* page,int *directory);
 Record next(RecordIterator* iterator);
-bool hasnext(RecordIterator* iterator);
+bool hasnext(RecordIterator* iterator, Page* page, Record *record, int *directory);
 
 
 
