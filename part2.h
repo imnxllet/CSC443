@@ -7,13 +7,14 @@
 //typedef const char* V;
 typedef Vector Record;
 typedef struct{
-    void *data;
-    int page_size;
+	int page_size;
     int slot_size;
     int free_slots;
     int used_slots;
     int total_slot;
     int slot_bitmap_size;
+    void *data;
+
 } Page;
 
 typedef struct {
@@ -21,6 +22,10 @@ typedef struct {
 	int page_size;
 	int directory_num_pages;
 	int d_num;
+	int file_size;
+	char *filename;
+	int slot_size;
+	int last_free_page;
 } Heapfile;
 
 typedef int PageID;
@@ -42,6 +47,8 @@ typedef struct  {
     int page_num;
     int d_num;
     int total_slot_in_page;
+
+
 } RecordIterator;
 
 void init_fixed_len_page(Page *page, int page_size, int slot_size);
@@ -58,20 +65,23 @@ int fixed_len_page_capacity(Page *page);
 void printBit(unsigned char *byte);
 int checkValue(Page *page, int slot_id);
 
-void init_heapfile(Heapfile *heapfile, int page_size, FILE *file);
+void init_heapfile(Heapfile *heapfile, int page_size, FILE *file, int file_size, char *filename);
 PageID assignPageID(Heapfile *heapfile, Page *page);
 void makeDirectoryPageAndAddpage(Heapfile *heapfile);
 PageID alloc_page(Heapfile *heapfile, Page *page);
 void read_page(Heapfile *heapfile, PageID pid, Page *page);
 void write_page(Page *page, Heapfile *heapfile, PageID pid);
 void init_RecordIterator(RecordIterator* iterator, Heapfile *heapfile);
-
+void openToWrite(Heapfile *heapfile);
+void openToRead(Heapfile *heapfile);
+//PageID alloc_page_insert(Heapfile *heapfile, Page *page);
 int getNextUsedPage(RecordIterator* iterator, Page* page,int *directory);
 Record next(RecordIterator* iterator);
 bool hasnext(RecordIterator* iterator, Page* page, Record *record, int *directory);
+//PageID assignPageID_insert(Heapfile *heapfile, Page *page);
+//void makeDirectoryPageAndAddpage_insert(Heapfile *heapfile);
 
-
-
-
-
+PageID alloc_record(Heapfile *heapfile, Record *record);
+PageID findPageID(Heapfile *heapfile, Record *record);
+int calculate_free(Page *page);
 

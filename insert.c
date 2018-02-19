@@ -28,8 +28,11 @@ int main(int argc, const char * argv[]) {
 
     fclose(fp_write_heapfile);*/
 
-    fp_write_heapfile = fopen(heap_filename, "w+b");
-    
+    fp_write_heapfile = fopen(heap_filename, "r+");
+    fseek(fp_write_heapfile, 0, SEEK_END);
+    int size; 
+    size = ftell(fp_write_heapfile);
+    rewind(fp_write_heapfile);
 
     // Read the CSV file line-by-line:
     FILE * fp_read_csv;
@@ -53,79 +56,39 @@ int main(int argc, const char * argv[]) {
     unsigned long start_ms = t.time * 1000 + t.millitm;
 
     //loop line, each line is a record that has 100 values..
-    int new_page = 1;
-    Page page;
+    //int new_page = 1;
+   // Page page;
 
     /* Initialize the heap file. */
     Heapfile heapfile;
-    init_heapfile(&heapfile, page_size, fp_write_heapfile, 0, (char *)heap_filename);
+    init_heapfile(&heapfile, page_size, fp_write_heapfile, size, (char *)heap_filename);
     PageID current_pid;
     while ((read = getline(&line, &len, fp_read_csv)) != -1) {
-        printf("!start writing record #%d...\n", records_num + 1);
+        printf("Processing record #%d...\n", records_num + 1);
         records_num++;
         //Doubt this..
         Record record;
         vector_setup(&record, 100, 10*sizeof(char));
-        heapfile.slot_size = fixed_len_sizeof(&record);
+
         fixed_len_read((void *)line, (int) read, &record);
+        heapfile.slot_size = fixed_len_sizeof(&record);
+        printf("size:::: %d\n", heapfile.slot_size);
         //printf("Retrieved line of length %zu :\n", read);
         //printf("The line record is: %s\n", line);
 
-        /* First record, initialize a new directory and page */
-        if(new_page){
-
-            init_fixed_len_page(&page, page_size, fixed_len_sizeof(&record));          
-            //printf("making a new page..\n");
-            pages_num++;
-            new_page = 0;
-            if(page.free_slots == 0){
-                printf("The page size is smaller than a record, abort.\n");
-                return -1;
-            }
-            //printf("Allocating space to this new page in heapfile...\n");
-            current_pid = alloc_page(&heapfile, &page);
-            printf("Allocated a page on heap, pid = %d.\n\n", (int) current_pid);
-        }
-
-        if(page.free_slots == 0){/* Write to file and Initialize a new one */
-            printf("Page is full, write it to heapfile \n");
-            write_page(&page, &heapfile, current_pid);
-            fflush(heapfile.file_ptr);
-
-
-            free(page.data);
-
-            init_fixed_len_page(&page, page_size, fixed_len_sizeof(&record));
-
-            
-            current_pid = alloc_page(&heapfile, &page);
-            printf("Allocated a page on heap, pid = %d.\n\n", (int) current_pid);
-            pages_num++;
-            new_page = 0;
-            if(add_fixed_len_page(&page, &record) == -1){
-                printf("Record size > slot size, cannot add to pade.\n");
-                return -1;
-            }
-
-        }else{
-            //printf("Adding a new record..\n");
-            if(add_fixed_len_page(&page, &record) == -1){
-                printf("Record size > slot size, cannot add to pade.\n");
-                return -1;
-            }
-
-        }
-        //free(&record);
+        current_pid = alloc_record(&heapfile, &record);
+        printf("Put this record#%d to pageID#%d\n", records_num+1, current_pid);
+        
 
     }
     printf("Last record done.. write page to heapfile \n");
 
 
-    write_page(&page, &heapfile, current_pid);
+    //write_page(&page, &heapfile, current_pid);
     //free(page.data);
     //free(&page);
     
-    fflush(heapfile.file_ptr);
+    /*fflush(heapfile.file_ptr);
 
         int* directory = malloc(page_size);
     bzero(directory, page_size);
@@ -137,7 +100,7 @@ int main(int argc, const char * argv[]) {
         
     for(int j=0; j < (page_size / sizeof(int)) / 2 * 2;j++){
         printf("Directory #%d: %d\n", j, directory[j]);
-    }
+    }*/
 
     fclose(fp_read_csv);
     fclose(fp_write_heapfile);

@@ -16,20 +16,30 @@ int main(int argc, const char * argv[]) {
     int page_size = atoi(argv[3]); 
 
     // Open the page file for writing
+
     FILE *fp_write_heapfile;
     /*get size of file..*/
-    
-    /*fp_write_heapfile = fopen(heap_filename, "r");
+    fp_write_heapfile = fopen(heap_filename, "r+");
     fseek(fp_write_heapfile, 0, SEEK_END);
+    
     int size; 
     size = ftell(fp_write_heapfile);
     rewind(fp_write_heapfile);
+    /*    int* directory = malloc(page_size);
+    bzero(directory, page_size);
+    rewind(fp_write_heapfile);
+    fread(directory, 1, page_size, fp_write_heapfile);
+
+
+        
+        
+    for(int j=0; j < (page_size / sizeof(int)) / 2 * 2;j++){
+        printf("Directory #%d: %d\n", j, directory[j]);
+    }*/
     printf("size is %d\n", size);
 
-    fclose(fp_write_heapfile);*/
-
-    fp_write_heapfile = fopen(heap_filename, "w+b");
-    
+    fclose(fp_write_heapfile);
+    fp_write_heapfile = fopen(heap_filename, "r+");
 
     // Read the CSV file line-by-line:
     FILE * fp_read_csv;
@@ -58,7 +68,8 @@ int main(int argc, const char * argv[]) {
 
     /* Initialize the heap file. */
     Heapfile heapfile;
-    init_heapfile(&heapfile, page_size, fp_write_heapfile, 0, (char *)heap_filename);
+    init_heapfile(&heapfile, page_size, fp_write_heapfile, size, (char *)heap_filename);
+
     PageID current_pid;
     while ((read = getline(&line, &len, fp_read_csv)) != -1) {
         printf("!start writing record #%d...\n", records_num + 1);
@@ -66,7 +77,6 @@ int main(int argc, const char * argv[]) {
         //Doubt this..
         Record record;
         vector_setup(&record, 100, 10*sizeof(char));
-        heapfile.slot_size = fixed_len_sizeof(&record);
         fixed_len_read((void *)line, (int) read, &record);
         //printf("Retrieved line of length %zu :\n", read);
         //printf("The line record is: %s\n", line);
@@ -83,7 +93,7 @@ int main(int argc, const char * argv[]) {
                 return -1;
             }
             //printf("Allocating space to this new page in heapfile...\n");
-            current_pid = alloc_page(&heapfile, &page);
+            current_pid = alloc_page_insert(&heapfile, &page);
             printf("Allocated a page on heap, pid = %d.\n\n", (int) current_pid);
         }
 
@@ -96,9 +106,8 @@ int main(int argc, const char * argv[]) {
             free(page.data);
 
             init_fixed_len_page(&page, page_size, fixed_len_sizeof(&record));
-
             
-            current_pid = alloc_page(&heapfile, &page);
+            current_pid = alloc_page_insert(&heapfile, &page);
             printf("Allocated a page on heap, pid = %d.\n\n", (int) current_pid);
             pages_num++;
             new_page = 0;
@@ -120,16 +129,9 @@ int main(int argc, const char * argv[]) {
     }
     printf("Last record done.. write page to heapfile \n");
 
-
-    write_page(&page, &heapfile, current_pid);
-    //free(page.data);
-    //free(&page);
-    
-    fflush(heapfile.file_ptr);
-
-        int* directory = malloc(page_size);
+   /* int* directory = malloc(page_size);
     bzero(directory, page_size);
-    fseek (fp_write_heapfile, 0, SEEK_SET);
+    fseek (fp_write_heapfile, 501000, SEEK_SET);
     fread(directory, 1, page_size, fp_write_heapfile);
 
 
@@ -137,7 +139,14 @@ int main(int argc, const char * argv[]) {
         
     for(int j=0; j < (page_size / sizeof(int)) / 2 * 2;j++){
         printf("Directory #%d: %d\n", j, directory[j]);
-    }
+    }*/
+    write_page(&page, &heapfile, current_pid);
+    //free(page.data);
+    //free(&page);
+    
+    fflush(heapfile.file_ptr);
+
+
 
     fclose(fp_read_csv);
     fclose(fp_write_heapfile);

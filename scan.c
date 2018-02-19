@@ -33,19 +33,27 @@ int main(int argc, const char * argv[]) {
 
     /* Initialize the heapfile*/
     Heapfile heapfile;
-    init_heapfile(&heapfile, page_size, fp_read_heapfile);
+    init_heapfile(&heapfile, page_size, fp_read_heapfile, 0, (char *)heap_filename);
     
     Page page;
     init_fixed_len_page(&page, heapfile.page_size, 1000);
     Record record;
     vector_setup(&record, 100, 10*sizeof(char));
+
     RecordIterator record_iterator;
+    heapfile.slot_size = 1000;
+    //printf("!!!!!%d\n", heapfile.slot_size);
     init_RecordIterator(&record_iterator, &heapfile);
+
     int *directory = malloc(page_size);
 
     while(hasnext(&record_iterator, &page, &record, directory) == true){
         records_num++;
+
         Record record = next(&record_iterator);
+        
+
+
         /*printf("\nrecord #%d\n", records_num); 
         int index = 0;
         Iterator iterator = vector_begin(&record);
