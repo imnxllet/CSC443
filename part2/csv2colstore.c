@@ -6,6 +6,7 @@
 //#include<cstdlib>
 #include <strings.h>
 #include <sys/stat.h>
+#include <string.h>
 
 int main(int argc, const char * argv[]) {
     if (argc < 4) {

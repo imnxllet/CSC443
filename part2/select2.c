@@ -3,6 +3,7 @@
 #include "library.h"
 #include <strings.h>
 #include "vector.h"
+#include <string.h>
 #include <stdlib.h> 
 
 int main(int argc, const char * argv[]) {
