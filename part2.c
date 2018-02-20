@@ -1246,12 +1246,12 @@ int select3(char *colstore_file, char *attribute_id, char *start, char *end, cha
                 //if(strncmp(substring, start, 5) >= 0 && strncmp(substring, end, 5) <= 0){
                 if(cmpstr(substring, start, 5) >= 0 && cmpstr(substring, end, 5) <= 0){
                     //printf("\n\nRecordID: %d_%d\n", record_iterator.page_num, record_iterator.record_id);
-                    printf("\n\nSlotID: %d\n", slot);
-                    printf("Extracted value.. %.*s\n", 5 ,substring);
-                  printf("start is %.*s, ", 5, start);
-                  printf("start cmp = %d\n", cmpstr(substring, start, 5) >= 0);
-                   printf("end cmp = %d\n", cmpstr(substring, end, 5) <= 0);
-           printf("end is %.*s, ", 5, end);
+                   // printf("\n\nSlotID: %d\n", slot);
+                   // printf("Extracted value.. %.*s\n", 5 ,substring);
+                  //printf("start is %.*s, ", 5, start);
+                  //printf("start cmp = %d\n", cmpstr(substring, start, 5) >= 0);
+                  // printf("end cmp = %d\n", cmpstr(substring, end, 5) <= 0);
+          // printf("end is %.*s, ", 5, end);
                     result[result_index] = slot;
                     result_index++;
 
