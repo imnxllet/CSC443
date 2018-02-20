@@ -18,10 +18,9 @@ int get_histogram(
     FILE *file_ptr,
     long hist[],
     int block_size,
-    long *milliseconds,
-    long *total_bytes_read
+    long *milliseconds
 ){
-
+    int total = 0;
     char buf[block_size];
 
     // start timer
@@ -40,6 +39,7 @@ int get_histogram(
             // ~~ASCII~~ powers
             int index = (int)(buf[i] - 'A'); 
             if(index < 26 && index >= 0){
+                total++;
                 hist[index] += 1;
                 //printf("The index is: %d\n", index);
                 //printf("The char(ok) is: %c\n", buf[i]);
@@ -48,25 +48,31 @@ int get_histogram(
             }
         }
 
-        *total_bytes_read += (long)block_size;
+        //*total_bytes_read += (long)block_size;
     }
     //Close the file 
-    fclose(file_ptr);
 
-    // stop timer
     ftime(&t);
     unsigned long stop_ms = t.time * 1000 + t.millitm;
     *milliseconds = stop_ms - start_ms;
+    fclose(file_ptr);
+
+    // stop timer
+
     
-    return 0;
+    return total;
 
 }
 
 int main(int argc, char *argv[]) {
 
+    if (argc < 3) {
+        printf("Usage: get_histogram <file name> <block_size>");
+        return 1;
+    }
     long hist[26];
     long milliseconds;
-    long filelen;
+    //long filelen;
     FILE *file_ptr = fopen(argv[1], "r");
 
     /*Compute the histogram using 2k buffers*/
@@ -74,17 +80,22 @@ int main(int argc, char *argv[]) {
         hist[i] = 0;
     }
 
-    int error = get_histogram(file_ptr, hist, atoi(argv[2]), &milliseconds, &filelen);
+    int total = get_histogram(file_ptr, hist, atoi(argv[2]), &milliseconds);
 
-    if(error < 0){
+    if(total < 0){
         printf("error\n");
         return -1;
     }
 
+     char* c = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     printf("Computed the histogram in %d ms.\n", (int)milliseconds);
     for(int i=0; i < 26; i++){
-        printf("%c : %d\n", 'A' + i, (int)hist[i]);
+        printf("%c : %d\n", c[i], (int)hist[i]);
     }
-    printf("Data rate: %f Bps\n", (double)filelen/milliseconds * 1000);
+
+    printf("BLOCK SIZE %d bytes\n", atoi(argv[2]));
+    printf("TOTAL BYTES %d bytes\n", total);
+    printf("TIME %d ms.\n", (int)milliseconds);
+    printf("Data rate: %ld Bps\n", total/milliseconds * 1000);
 
 }
