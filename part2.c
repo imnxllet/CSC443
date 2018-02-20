@@ -120,10 +120,12 @@ void init_fixed_len_page(Page *page, int page_size, int slot_size){
     memset ((char*)page->data, 0, page_size);
     memset((int*)page->data, page->free_slots, sizeof(int));
 
+   // if(page->slot_bitmap_size + sizeof(int) + )
 
-    printf("new page has %d for slot suze\n", page->slot_size);
-    printf("new page has %d free slots\n", page->free_slots);
-    printf("new page has %d bytes reserve for bitmap\n", page->slot_bitmap_size);
+
+    //printf("new page has %d for slot suze\n", page->slot_size);
+    //printf("new page has %d free slots\n", page->free_slots);
+    //printf("new page has %d bytes reserve for bitmap\n", page->slot_bitmap_size);
 
 }
 
@@ -131,7 +133,14 @@ void init_fixed_len_page(Page *page, int page_size, int slot_size){
 
 int fixed_len_page_capacity(Page *page){
     /*Page size =  M*slot_size + 2 or 1 (to store M) + M/8 (M bits)*/
-    int num_slots_M = (page->page_size - sizeof(int)) / ((1/8) + page->slot_size);
+    //int num_slots_M = (page->page_size - sizeof(int)) / ((1/8) + page->slot_size);
+
+
+    int num_slots_M = (page->page_size - sizeof(int)) /  page->slot_size;
+    int bitmap_byte = num_slots_M / 8 + 1;
+    if ((sizeof(int) + bitmap_byte + num_slots_M * page->slot_size) > page->page_size){
+        return num_slots_M - 1;
+    }
     return num_slots_M;
 
 }
@@ -171,7 +180,8 @@ int add_fixed_len_page(Page *page, Record *r){
 
 /* Write a record into a given slot. */ 
 void write_fixed_len_page(Page *page, int slot, Record *r){
-    //printf("start writing record#2...\n");
+
+    //printf("start writing record to slot %d...\n", slot);
     char* next_free_slot = (char *)((char *)page->data + sizeof(int) + page->slot_bitmap_size + ((slot - 1) * page->slot_size));
     togglePageBitmap(page, slot, 1);
     fixed_len_write(r, (void *)next_free_slot);
@@ -199,9 +209,9 @@ void read_fixed_len_page(Page *page, int slot, Record *r){
         index += ATTRIBUTE_SIZE;
 
         //
-        //printf("pushing record %d\n", i);
-         printf("%.*s, ", ATTRIBUTE_SIZE, value);
-         value[ATTRIBUTE_SIZE -1] = '\0';
+        //printf("pushing record %d\n", i);weird.
+       // printf("%.*s, \n", ATTRIBUTE_SIZE, value);
+         //value[ATTRIBUTE_SIZE -1] = '\0';
         
         //r->push_back(value);
 
@@ -692,7 +702,7 @@ void read_page(Heapfile *heapfile, PageID pid, Page *page){
     page->page_size = heapfile->page_size;
 
     page->total_slot = fixed_len_page_capacity(page);
-    printf("hiii... %d\n", page->total_slot );
+    //printf("hiii... %d\n", page->total_slot );
     page->free_slots = calculate_free(page);
 
     page->used_slots = page->total_slot - page->free_slots;
@@ -771,7 +781,7 @@ int getNextUsedPage(RecordIterator* iterator, Page* page, int *directory){
 
     /* First time, no page*/
     if(iterator->current_page == NULL){
-        printf("Setting up the first directory..\n");
+        //printf("Setting up the first directory..\n");
         
         iterator->d_num++;
 
@@ -819,7 +829,7 @@ int getNextUsedPage(RecordIterator* iterator, Page* page, int *directory){
 
 
             //printf("This page has total slot of : %d\n", (iterator->current_page)->total_slot);
-            printf("Get page id %d\n", ((i / 2 + 1)) + (iterator->page_offset/heapfile->page_size));
+            //printf("Get page id %d\n", ((i / 2 + 1)) + (iterator->page_offset/heapfile->page_size));
 
             /* Sucessfully find a page.*/
             return 1;
@@ -873,15 +883,17 @@ Record next(RecordIterator* iterator){
 }
 
 bool hasnext(RecordIterator* iterator, Page* page, Record *record, int *directory){
+    vector_clear(record);
 
     //Should move to next page or next directory
-    printf("\nStart to find next record..\n");
+    
+    //printf("\nStart to find next record..\n");
 
     int has_next= 0;
     while(has_next == 0){
 
         /* we need a new page when we first start iterate or the current page is done. */
-        printf("current record_id is %d\n", iterator->record_id);
+        //printf("current record_id is %d\n", iterator->record_id);
         if (iterator->current_page == NULL || (iterator->record_id  >= (iterator->current_page)->total_slot)) {
             
             /*if(iterator->current_page == NULL){
@@ -891,13 +903,13 @@ bool hasnext(RecordIterator* iterator, Page* page, Record *record, int *director
             }*/
 
 
-            printf("Go to next page\n");
+            //printf("Go to next page\n");
 
             /*1 - has next page, 0 - move to new directory, -1 - No next record*/
             int has_next_page = getNextUsedPage(iterator, page, directory);
             //printf("!!!This page has total slot of : %d\n", (iterator->current_page)->total_slot);
-            printf("Has Nextpage value idicator; %d\n", has_next_page);
-            printf("We are at record id #%d\n", iterator->record_id);
+           // printf("Has Nextpage value idicator; %d\n", has_next_page);
+            //printf("We are at record id #%d\n", iterator->record_id);
             iterator->record_id = 0;
 
             if(has_next_page == -1){
@@ -905,7 +917,7 @@ bool hasnext(RecordIterator* iterator, Page* page, Record *record, int *director
 
             /* Check if new directory has page.*/
             }else if(has_next_page == 0){
-                printf("I am here..\n");
+                //printf("I am here..\n");
                 has_next_page = getNextUsedPage(iterator, page, directory);
                 /* Assuming a directory that has no available page will not have a linked new directory*/
                 if(has_next_page == -1){
@@ -918,10 +930,10 @@ bool hasnext(RecordIterator* iterator, Page* page, Record *record, int *director
          /* The new page is stored in iterator. */
          /* Check if this page has record to read. */
        // printf("checking record %d\n", iterator->record_id + 1);
-        printf("This page has total slot of : %d\n", (iterator->current_page)->total_slot);
+        //printf("This page has total slot of : %d\n", (iterator->current_page)->total_slot);
 
         for(int i = iterator->record_id + 1; i <= (iterator->current_page)->total_slot; i++){
-            printf("checkingggg record %d\n", iterator->record_id + 1);
+           // printf("checkingggg record %d\n", iterator->record_id + 1);
             /* Has a record in this slot.*/
             iterator->record_id ++;
 
@@ -931,11 +943,12 @@ bool hasnext(RecordIterator* iterator, Page* page, Record *record, int *director
             //read_fixed_len_page((iterator->current_page)->data, i, record);
             if(checkValue(iterator->current_page, i) == 1){
                 //Record record;
-                printf("I am here\n");
+                //printf("I am here\n");
                 
-
+                //printf("\n\nRecordID: %d_%d\n", iterator->page_num, iterator->record_id);
                 read_fixed_len_page(iterator->current_page, i, record);
-                 //printf("checking record %d\n", iterator->record_id + 1);
+
+                 //printf("checking record %d\n", iterator->record_id + 1) .;
                 iterator->next_record = record;
 
                 //iterator->current_record_slot += 1;
@@ -980,7 +993,7 @@ void printBit(unsigned char *byte){
 int find_FreeSlot(Page *page){
     unsigned char *slot_bitmap = (unsigned char *)page->data + sizeof(int);
     int num_slots = fixed_len_page_capacity(page);
-    printf("This page has %d slots\n", num_slots);
+    //printf("This page has %d slots\n", num_slots);
 
     int counter = 0;
     //unsigned char *inode_bitmap = index(disk, group->bg_inode_bitmap);
@@ -1034,7 +1047,7 @@ int checkValue(Page *page, int slot_id){
 int calculate_free(Page *page){
     unsigned char *slot_bitmap = (unsigned char *)page->data + sizeof(int);
     int num_slots = fixed_len_page_capacity(page);
-    printf("This page has %d slots\n", num_slots);
+    //printf("This page has %d slots\n", num_slots);
 
     int counter = 0;
     //unsigned char *inode_bitmap = index(disk, group->bg_inode_bitmap);
@@ -1091,6 +1104,33 @@ int togglePageBitmap(Page *page, int slot_id, int value){
         }
         //error
         return -1;
+}
+
+void getIDs(char *page_record, RecordID *record_id){
+    int len = strlen(page_record);
+    char page_id[len];
+    char slot[len];
+    int found_page = 0;
+    for(int i =0; i < len; i++){
+        if(page_record[i] != '_' && found_page == 0){
+
+            page_id[i] = page_record[i];
+
+        }else if(page_record[i] != '_' && found_page != 0){
+
+            slot[i - found_page - 1] = page_record[i];
+        }else{
+
+            found_page = i;
+            page_id[i] = '\0';
+        }
+
+    }
+    slot[len - found_page - 1] = '\0';
+
+    record_id->page_id = atoi(page_id); 
+    record_id->slot = atoi(slot); 
+
 }
 
 

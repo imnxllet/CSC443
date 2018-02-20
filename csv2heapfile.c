@@ -127,7 +127,7 @@ int main(int argc, const char * argv[]) {
     
     fflush(heapfile.file_ptr);
 
-        int* directory = malloc(page_size);
+    /*    int* directory = malloc(page_size);
     bzero(directory, page_size);
     fseek (fp_write_heapfile, 0, SEEK_SET);
     fread(directory, 1, page_size, fp_write_heapfile);
@@ -138,7 +138,7 @@ int main(int argc, const char * argv[]) {
     for(int j=0; j < (page_size / sizeof(int)) / 2 * 2;j++){
         printf("Directory #%d: %d\n", j, directory[j]);
     }
-
+*/
     fclose(fp_read_csv);
     fclose(fp_write_heapfile);
 

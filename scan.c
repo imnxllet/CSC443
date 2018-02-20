@@ -50,11 +50,11 @@ int main(int argc, const char * argv[]) {
     while(hasnext(&record_iterator, &page, &record, directory) == true){
         records_num++;
 
-        Record record = next(&record_iterator);
+        record = next(&record_iterator);
         
 
-
-        /*printf("\nrecord #%d\n", records_num); 
+        printf("\n\nRecordID: %d_%d\n", record_iterator.page_num, record_iterator.record_id);
+        //printf("\nrecord #%d\n", records_num); 
         int index = 0;
         Iterator iterator = vector_begin(&record);
         Iterator last = vector_end(&record);
@@ -63,9 +63,9 @@ int main(int argc, const char * argv[]) {
             //memcpy((char*)buf + index, (char *)iterator_get(&iterator), ATTRIBUTE_SIZE);
             //printf("Value is %.*s\n", ATTRIBUTE_SIZE, (char *)iterator_get(&iterator));
             index += ATTRIBUTE_SIZE;
-            printf(" %.*s,", ATTRIBUTE_SIZE, (char *)iterator_get(&iterator));
+            printf("%.*s, ", ATTRIBUTE_SIZE, (char *)iterator_get(&iterator));
         }
-        printf("\n");*/
+        printf("\n");
     }
 
 
@@ -79,7 +79,7 @@ int main(int argc, const char * argv[]) {
     unsigned long stop_ms = t.time * 1000 + t.millitm;
 
 
-    printf("NUMBER OF RECORDS: %d\n", records_num);
+    printf("\n\nNUMBER OF RECORDS: %d\n", records_num);
     printf("NUMBER OF PAGES:: %d\n", record_iterator.page_num);
         printf("NUMBER OF DIRECTORIES:: %d\n", record_iterator.d_num);
     printf("Time used to write the file: %lums.\n", stop_ms - start_ms);

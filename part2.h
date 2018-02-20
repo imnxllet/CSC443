@@ -84,4 +84,4 @@ bool hasnext(RecordIterator* iterator, Page* page, Record *record, int *director
 PageID alloc_record(Heapfile *heapfile, Record *record);
 PageID findPageID(Heapfile *heapfile, Record *record);
 int calculate_free(Page *page);
-
+void getIDs(char *page_record, RecordID *record_id);
