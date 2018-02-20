@@ -13,7 +13,7 @@ void random_array(char *array, long bytes){
     for (i=0;i<bytes;i++){
         array[i] = 'A' + (rand() % 26);      
     }
-    printf("Generated random Array: %s \n",array);
+    //printf("Generated random Array: %s \n",array);
  
     
 }
@@ -28,7 +28,7 @@ int main(int argc, char *argv[]) {
     char *filename = argv[1];
     printf("File size is %s\n", argv[2]);
     int file_size = atoi(argv[2]);
-    printf("File size is %d\n", file_size);
+    //printf("File size is %d\n", file_size);
     int bytes = atoi(argv[3]);
     printf("Buffer size is %d\n", bytes);
     //long bytes = strtol(argv[2], NULL, 10);
@@ -42,15 +42,16 @@ int main(int argc, char *argv[]) {
 
     // calculate remainder as block_size/total_size may not be clean
     int remaining_bytes = file_size % bytes;
-    printf("Remainig byte is: %d.\n", remaining_bytes);
+    //printf("Remainig byte is: %d.\n", remaining_bytes);
 
     // start timer
-    struct timeb t;
-    ftime(&t);
-    unsigned long start_ms = t.time * 1000 + t.millitm;
+    
     
     FILE *fp;
     fp = fopen(filename, "w");
+    struct timeb t;
+    ftime(&t);
+    unsigned long start_ms = t.time * 1000 + t.millitm;
     for (int i = 0; i < file_size; i += bytes) {
         random_array(buffer, bytes);
         fwrite(buffer, sizeof(char), bytes, fp);
