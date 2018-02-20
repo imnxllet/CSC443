@@ -68,7 +68,7 @@ int main(int argc, const char * argv[]) {
 
     int *directory = malloc(page_size);
 
-    RecordID recordID;
+    //RecordID recordID;
     //getIDs((char *)record_id,  &recordID);
     //printf("page %d_ slot %d\n", recordID.page_id, recordID.slot);
 
@@ -86,7 +86,7 @@ int main(int argc, const char * argv[]) {
 
         if(strncmp(substring, start, 5) >= 0 && strncmp(substring, end, 5) <= 0){
             printf("\n\nRecordID: %d_%d\n", record_iterator.page_num, record_iterator.record_id);
-            printf("Extracted value.. %.*s\n", 5 ,substring);
+            printf("Extracted value-> %.*s\n", 5 ,substring);
 
         }
 

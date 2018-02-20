@@ -35,7 +35,7 @@ int main(int argc, const char * argv[]) {
     bzero(result, size);
     select3(colstore_file, (char *)argv[2], start, end, (char *)argv[6], result, 0);
 
-    int i = 0;
+    //int i = 0;
     /*while(result[i] != 0){
         printf("slot: %d\n", result[i]);
         i++;

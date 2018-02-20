@@ -76,7 +76,7 @@ int main(int argc, const char * argv[]) {
     //RecordID recordID;
     //getIDs((char *)record_id,  &recordID);
     //printf("page %d_ slot %d\n", recordID.page_id, recordID.slot);
-
+    int slot = 0;
     while(hasnext(&record_iterator, &page, &record, directory) == true){
         records_num++;
 
@@ -86,6 +86,7 @@ int main(int argc, const char * argv[]) {
         Iterator last = vector_end(&record);
         //printf("has next\n");
         for (; !iterator_equals(&iterator, &last); iterator_increment(&iterator)) {
+            slot++;
             // *(int*)iterator_get(record) += 1;
             //memcpy((char*)buf + index, (char *)iterator_get(&iterator), ATTRIBUTE_SIZE);
             //printf("Value is %.*s\n", ATTRIBUTE_SIZE, (char *)iterator_get(&iterator));
@@ -97,8 +98,9 @@ int main(int argc, const char * argv[]) {
            // printf("end is %.*s, ", 5, end);
 
             if(strncmp(substring, start, 5) >= 0 && strncmp(substring, end, 5) <= 0){
-                printf("\n\nRecordID: %d_%d\n", record_iterator.page_num, record_iterator.record_id);
-                printf("Extracted value.. %.*s\n", 5 ,substring);
+                //printf("\n\nRecordID: %d_%d\n", record_iterator.page_num, record_iterator.record_id);
+                printf("\n\nSlot #: %d\n", slot);
+                printf("Extracted value-> %.*s\n", 5 ,substring);
 
             }
         }
