@@ -1138,3 +1138,178 @@ int min(int a, int b){
         return b;
     }
 }
+
+
+int select3(char *colstore_file, char *attribute_id, char *start, char *end, char *pagesize, int *result, int mode){
+
+    //const char *heap_filename = argv[1];
+   // const char *start = argv[3];
+   // const char *end = argv[4];
+    //int attribute_id = attribute_id;
+    
+    //printf("strlen.. %d\n", strlen(argv[3]));
+    //char start[strlen(start)];
+    //memcpy(start, start, strlen(start));
+    //char end[strlen(argv[4])];
+    //memcpy(end, end, strlen(end));
+   /* if(strlen(argv[4]) != ATTRIBUTE_SIZE){
+        printf("new value is not 10 bytes\n");
+        return -1;
+    }
+
+
+*/      
+    int page_size = atoi(pagesize);
+
+
+    if(atoi(attribute_id) > 99 || atoi(attribute_id) <0){
+        printf("Invalid attribute_id\n");
+        return -1;
+    }
+
+    
+    //const char *new_value = argv[4];
+    //int page_size = page_size; 
+
+    // Open the page file for writing
+    FILE *fp_read_heapfile;
+    fp_read_heapfile = fopen(colstore_file, "r+");
+    if(fp_read_heapfile == NULL){
+        printf("Error in file opening\n");
+    }
+    //fseek(fp_read_heapfile, 0, SEEK_END);
+
+    //int result[ftell(fp_read_heapfile)];
+    //rewind(fp_read_heapfile);
+
+
+    int records_num = 0;
+    //int pages_num = 0;
+
+    // start timer
+    struct timeb t;
+    ftime(&t);
+    unsigned long start_ms = t.time * 1000 + t.millitm;
+    //char buf[page_size];
+
+    /* Initialize the heapfile*/
+    Heapfile heapfile;
+    printf("colstore_file is %s\n", colstore_file);
+    init_heapfile(&heapfile, page_size, fp_read_heapfile, 0, (char *)colstore_file);
+    
+    Page page;
+    init_fixed_len_page(&page, heapfile.page_size, 1000);
+    Record record;
+    vector_setup(&record, 100, 10*sizeof(char));
+
+    RecordIterator record_iterator;
+    heapfile.slot_size = 1000;
+    //printf("!!!!!%d\n", heapfile.slot_size);
+    init_RecordIterator(&record_iterator, &heapfile);
+
+    int *directory = malloc(page_size);
+
+    //RecordID recordID;
+    //getIDs((char *)record_id,  &recordID);
+    //printf("page %d_ slot %d\n", recordID.page_id, recordID.slot);
+
+    int slot = 0;
+    int result_index = 0;
+
+    int to_check = 0;
+    while(hasnext(&record_iterator, &page, &record, directory) == true){
+        records_num++;
+
+        
+        record = next(&record_iterator);
+        Iterator iterator = vector_begin(&record);
+        Iterator last = vector_end(&record);
+        //printf("has next\n");
+        for (; !iterator_equals(&iterator, &last); iterator_increment(&iterator)) {
+            // *(int*)iterator_get(record) += 1;
+            //memcpy((char*)buf + index, (char *)iterator_get(&iterator), ATTRIBUTE_SIZE);
+            //printf("Value is %.*s\n", ATTRIBUTE_SIZE, (char *)iterator_get(&iterator));
+            char substring[5];
+            slot++;
+            memcpy(substring, (char *)iterator_get(&iterator) + 1, 5);
+            //printf("substring is %.*s, ", 5, substring);
+
+            if(mode == 1){
+                if(slot == result[to_check]){
+                    printf("\n\nSlotID: %d\n", slot);
+                    printf("Extracted value.. %.*s\n", 5 ,substring);
+                    to_check++;
+                }
+            }
+            
+            if(mode == 0){
+                //if(strncmp(substring, start, 5) >= 0 && strncmp(substring, end, 5) <= 0){
+                if(cmpstr(substring, start, 5) >= 0 && cmpstr(substring, end, 5) <= 0){
+                    //printf("\n\nRecordID: %d_%d\n", record_iterator.page_num, record_iterator.record_id);
+                    printf("\n\nSlotID: %d\n", slot);
+                    printf("Extracted value.. %.*s\n", 5 ,substring);
+                  printf("start is %.*s, ", 5, start);
+                  printf("start cmp = %d\n", cmpstr(substring, start, 5) >= 0);
+                   printf("end cmp = %d\n", cmpstr(substring, end, 5) <= 0);
+           printf("end is %.*s, ", 5, end);
+                    result[result_index] = slot;
+                    result_index++;
+
+                }
+            }
+        }
+
+
+
+
+        
+
+        
+    }
+
+
+
+
+
+    fclose(fp_read_heapfile);
+
+  
+
+
+    // stop timer
+    ftime(&t);
+    unsigned long stop_ms = t.time * 1000 + t.millitm;
+
+
+    //printf("\n\nNUMBER OF RECORDS: %d\n", records_num);
+    //printf("NUMBER OF PAGES:: %d\n", record_iterator.page_num);
+    //printf("NUMBER OF DIRECTORIES:: %d\n", record_iterator.d_num);
+    printf("Time used to write the file: %lums.\n", stop_ms - start_ms);
+
+
+    return 0;
+}
+
+
+int cmpstr(char *str1, char *str2, int size){
+    int sum1 = 0;
+    int sum2 = 0;
+
+    for(int i = 0; i < size; i++){
+        sum1 += (int)str1[i];
+        //printf("%c\n", str1[i]);
+    }
+
+    for(int i = 0; i < size; i++){
+        sum2 += (int)str2[i];
+        //printf("%c\n", str2[i]);
+    }
+
+    if(sum1 > sum2){
+        return 1;
+    }else if(sum1 < sum2){
+        return -1;
+    }else{
+        return 0;
+    }
+}

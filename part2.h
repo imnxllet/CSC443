@@ -88,3 +88,6 @@ PageID findPageID(Heapfile *heapfile, Record *record);
 int calculate_free(Page *page);
 void getIDs(char *page_record, RecordID *record_id);
 int min(int a, int b);
+
+int select3(char *colstore_file, char *attribute_id, char *start, char *end, char *pagesize, int *result, int mode);
+int cmpstr(char *str1, char *str2, int size);
