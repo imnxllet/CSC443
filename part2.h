@@ -2,7 +2,9 @@
 #include <stdio.h>
 
 #define ATTRIBUTE_SIZE 10
-
+#define RECORD_REAL_SIZE 1100
+#define RECORD_SIZE 1000
+#define ATTRIBUTE_NUM 100
 
 //typedef const char* V;
 typedef Vector Record;
@@ -85,3 +87,4 @@ PageID alloc_record(Heapfile *heapfile, Record *record);
 PageID findPageID(Heapfile *heapfile, Record *record);
 int calculate_free(Page *page);
 void getIDs(char *page_record, RecordID *record_id);
+int min(int a, int b);

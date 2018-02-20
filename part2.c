@@ -26,15 +26,10 @@ int fixed_len_sizeof(Record *record){
     }
 
     printf("This record has %d attributes...\n", record->size());*/
-    int sum = 0;
-    Iterator iterator = vector_begin(record);
-    Iterator last = vector_end(record);
-    for (; !iterator_equals(&iterator, &last); iterator_increment(&iterator)) {
-        sum++;
-    }
 
 
-    return sum * ATTRIBUTE_SIZE;
+
+    return ATTRIBUTE_NUM * ATTRIBUTE_SIZE;
     //return size;
 }
 
@@ -163,7 +158,7 @@ Page size =  M*slot_size + 2 or 1 (to store M) + M/8 (M bits)
 int add_fixed_len_page(Page *page, Record *r){
 
     /* To-do: should we check slot size fit record r..??*/
-    printf("Record size: %d, slot size %d\n", fixed_len_sizeof(r), page->slot_size);
+    //printf("Record size: %d, slot size %d\n", fixed_len_sizeof(r), page->slot_size);
     if (fixed_len_sizeof(r) <= page->slot_size){
         int slot_id = find_FreeSlot(page);
         printf("Free slot id on this page is: %d\n", slot_id);
@@ -363,6 +358,7 @@ PageID alloc_page(Heapfile *heapfile, Page *page) {
 
     /* An empty heap file. make the directory*/
     if (heapfile->file_size == 0){
+        heapfile->file_size = 1;
       // print your error message here
         printf("The heap file needs a directory page before adding a data page..\n");
         /*int num_of_dslot = (heapfile->page_size) / sizeof(int);
@@ -372,7 +368,9 @@ PageID alloc_page(Heapfile *heapfile, Page *page) {
         fflush(heapfile->file_ptr);
         heapfile->directory_num_pages = num_of_dslot;*/
         rewind(heapfile->file_ptr);
+
         makeDirectoryPageAndAddpage(heapfile);
+
     }else{
         printf("The heapfile is built before.\n");
         int num_of_dslot = ((heapfile->page_size) / sizeof(int)) / 2 * 2;
@@ -1133,4 +1131,10 @@ void getIDs(char *page_record, RecordID *record_id){
 
 }
 
-
+int min(int a, int b){
+    if(a < b){
+        return a;
+    }else{
+        return b;
+    }
+}
