@@ -1,7 +1,7 @@
 CC = gcc
 CXXFLAGS= -Wall -g
 
-all: write_fixed_len_pages read_fixed_len_pages csv2heapfile scan insert update delete select csv2colstore
+all: write_fixed_len_pages read_fixed_len_pages csv2heapfile scan insert update delete select csv2colstore select2 select3
 
 
 
@@ -28,6 +28,12 @@ delete: delete.c part2.o vector.o
 
 select: select.c part2.o vector.o
 	$(CC) $(CXXFLAGS) -o $@ $< part2.o vector.o
+select2: select2.c part2.o vector.o
+	$(CC) $(CXXFLAGS) -o $@ $< part2.o vector.o
+
+select3: select3.c part2.o vector.o
+	$(CC) $(CXXFLAGS) -o $@ $< part2.o vector.o
+
 
 csv2colstore: csv2colstore.c part2.o vector.o
 	$(CC) $(CXXFLAGS) -o $@ $< part2.o vector.o
