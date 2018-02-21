@@ -132,7 +132,7 @@ int main(int argc, const char * argv[]) {
     //printf("\n\nNUMBER OF RECORDS: %d\n", records_num);
     //printf("NUMBER OF PAGES:: %d\n", record_iterator.page_num);
     //printf("NUMBER OF DIRECTORIES:: %d\n", record_iterator.d_num);
-    printf("Time used to do the query: %lums.\n", stop_ms - start_ms);
+    printf("\nTime used to do select2: %lums.\n", stop_ms - start_ms);
 
 
     return 0;
