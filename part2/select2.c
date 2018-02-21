@@ -100,8 +100,9 @@ int main(int argc, const char * argv[]) {
 
             if(strncmp(substring, start, 5) >= 0 && strncmp(substring, end, 5) <= 0){
                 //printf("\n\nRecordID: %d_%d\n", record_iterator.page_num, record_iterator.record_id);
-                printf("\n\nSlot #: %d\n", slot);
-                printf("Extracted value-> %.*s\n", 5 ,substring);
+               // printf("\n\nSlot #: %d\n", slot);
+                //printf("Extracted value-> %.*s\n", 5 ,substring);
+                //printf("%.*s, ", 5 ,substring);
 
             }
         }
@@ -131,7 +132,7 @@ int main(int argc, const char * argv[]) {
     //printf("\n\nNUMBER OF RECORDS: %d\n", records_num);
     //printf("NUMBER OF PAGES:: %d\n", record_iterator.page_num);
     //printf("NUMBER OF DIRECTORIES:: %d\n", record_iterator.d_num);
-    printf("Time used to write the file: %lums.\n", stop_ms - start_ms);
+    printf("Time used to do the query: %lums.\n", stop_ms - start_ms);
 
 
     return 0;

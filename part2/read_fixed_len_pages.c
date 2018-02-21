@@ -40,37 +40,43 @@ int main(int argc, const char * argv[]) {
         int read_bytes = fread(page.data, sizeof(char), page_size, fp_read_page);
         if(!read_bytes){
             free(page.data);
-            return 0;
+            break;;
         }
         //fread(buf, 1, block_size, file_ptr);
-        printf("Read %d bytes\n", read_bytes);
+        //printf("Read %d bytes\n", read_bytes);
         for (int i = 1; i <= page.total_slot; i ++) {
-            records_num++;
+            
             Record record;
             vector_setup(&record, 100, 10*sizeof(char));
             /*Empty slot*/
             if(checkValue(&page, i) == 0){
-                printf("Slot %d has no record..\n", i);
+                //printf("Slot %d has no record..\n", i);
                 continue;
             }
-            printf("Slot %d has a record..\n", i);
-
+           // printf("Slot %d has a record..\n", i);
+            //printf("hi\n");
             read_fixed_len_page(&page, i, &record);
-            
-            /*printf("Record %d\n", i);
-            for (int j = 0; j < record.size(); j++) {
-                printf("%s", record.at(j));
-                // fputs(record.at(j), dev_null);
-                if (j != record.size() - 1){
-                    std::cout << ",";
-                }
-            }*/
-            printf("\n");
+            records_num++;
+            /*
+            Iterator iterator = vector_begin(&record);
+            Iterator last = vector_end(&record);
+            printf("\nRecord #%d\n", records_num);
+            for (; !iterator_equals(&iterator, &last); iterator_increment(&iterator)) {
+                // *(int*)iterator_get(record) += 1;
+                //memcpy((char*)buf + index, (char *)iterator_get(&iterator), ATTRIBUTE_SIZE);
+                //printf("Value is %.*s\n", ATTRIBUTE_SIZE, (char *)iterator_get(&iterator));
+                //index += ATTRIBUTE_SIZE;
+
+                printf("%.*s, ", ATTRIBUTE_SIZE, (char *)iterator_get(&iterator));
+            }
+        printf("\n");*/
             
         }
 
         pages_num++;
+        //printf("NUMBER OF RECORDS: %d\n", records_num);
     }
+
     fclose(fp_read_page);
 
   
@@ -83,7 +89,8 @@ int main(int argc, const char * argv[]) {
 
     printf("NUMBER OF RECORDS: %d\n", records_num);
     printf("NUMBER OF PAGES:: %d\n", pages_num);
-    printf("Time used to write the file: %lums.\n", stop_ms - start_ms);
+    printf("Time used to read the file: %lums.\n", stop_ms - start_ms);
+    printf("RATE(RECORD/S): %lu\n\n", records_num/ (stop_ms - start_ms) * 1000);
 
 
     return 0;

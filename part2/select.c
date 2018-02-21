@@ -48,9 +48,7 @@ int main(int argc, const char * argv[]) {
     //int pages_num = 0;
 
     // start timer
-    struct timeb t;
-    ftime(&t);
-    unsigned long start_ms = t.time * 1000 + t.millitm;
+  
     //char buf[page_size];
 
     /* Initialize the heapfile*/
@@ -72,6 +70,9 @@ int main(int argc, const char * argv[]) {
     //RecordID recordID;
     //getIDs((char *)record_id,  &recordID);
     //printf("page %d_ slot %d\n", recordID.page_id, recordID.slot);
+    struct timeb t;
+    ftime(&t);
+    unsigned long start_ms = t.time * 1000 + t.millitm;
 
     while(hasnext(&record_iterator, &page, &record, directory) == true){
         records_num++;
@@ -86,15 +87,20 @@ int main(int argc, const char * argv[]) {
 
 
         if(strncmp(substring, start, 5) >= 0 && strncmp(substring, end, 5) <= 0){
-            printf("\n\nRecordID: %d_%d\n", record_iterator.page_num, record_iterator.record_id);
-            printf("Extracted value-> %.*s\n", 5 ,substring);
+            
+            //printf("\nRecordID: %d_%d\n", record_iterator.page_num, record_iterator.record_id);
+            //printf("Extracted value-> %.*s\n", 5 ,substring);
+            
+            printf("%.*s,", 5 ,substring);
 
         }
 
         
     }
 
-
+    ftime(&t);
+    unsigned long stop_ms = t.time * 1000 + t.millitm;
+    printf("\n");
 
 
 
@@ -104,14 +110,13 @@ int main(int argc, const char * argv[]) {
 
 
     // stop timer
-    ftime(&t);
-    unsigned long stop_ms = t.time * 1000 + t.millitm;
+    
 
 
     //printf("\n\nNUMBER OF RECORDS: %d\n", records_num);
     //printf("NUMBER OF PAGES:: %d\n", record_iterator.page_num);
     //printf("NUMBER OF DIRECTORIES:: %d\n", record_iterator.d_num);
-    printf("Time used to write the file: %lums.\n", stop_ms - start_ms);
+    printf("Time used to extracted the value: %lums.\n", stop_ms - start_ms);
 
 
     return 0;

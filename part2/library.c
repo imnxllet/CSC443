@@ -153,7 +153,7 @@ int add_fixed_len_page(Page *page, Record *r){
     //printf("Record size: %d, slot size %d\n", fixed_len_sizeof(r), page->slot_size);
     if (fixed_len_sizeof(r) <= page->slot_size){
         int slot_id = find_FreeSlot(page);
-        printf("Free slot id on this page is: %d\n", slot_id);
+        //printf("Free slot id on this page is: %d\n", slot_id);
         if(slot_id != -1){
             //printf("start writing record...\n");
             write_fixed_len_page(page, slot_id, r);
@@ -274,7 +274,7 @@ PageID assignPageID(Heapfile *heapfile, Page *page){
             /*Found*/
             if(directory[i] == 0){
                 /*Not page store in this offset, store here*/
-                printf("Directort Slot id for this page is: %d\n", i / 2 + 1);
+                //printf("Directort Slot id for this page is: %d\n", i / 2 + 1);
                 //printf("Offset is %d\n", (i + 1) * (heapfile->page_size));
                 //printf("Free slot for the new data page is %d\n", page->free_slots);
 
@@ -302,8 +302,9 @@ PageID assignPageID(Heapfile *heapfile, Page *page){
             fwrite(directory, 1, heapfile->page_size, heapfile->file_ptr);
             fflush(heapfile->file_ptr);
             makeDirectoryPageAndAddpage(heapfile);
-            printf("making a new d\n");
-            printf("size\n");
+            
+            //printf("making a new d\n");
+            //printf("size\n");
 
         }
         //New one exsit or already made, jump to there.
@@ -352,7 +353,7 @@ PageID alloc_page(Heapfile *heapfile, Page *page) {
     if (heapfile->file_size == 0){
         heapfile->file_size = 1;
       // print your error message here
-        printf("The heap file needs a directory page before adding a data page..\n");
+        //printf("The heap file needs a directory page before adding a data page..\n");
         /*int num_of_dslot = (heapfile->page_size) / sizeof(int);
         int directory[num_of_dslot];
         bzero(directory, heapfile->page_size);
@@ -364,7 +365,7 @@ PageID alloc_page(Heapfile *heapfile, Page *page) {
         makeDirectoryPageAndAddpage(heapfile);
 
     }else{
-        printf("The heapfile is built before.\n");
+        //printf("The heapfile is built before.\n");
         int num_of_dslot = ((heapfile->page_size) / sizeof(int)) / 2 * 2;
         if(heapfile->directory_num_pages == 0){
             heapfile->directory_num_pages = num_of_dslot;
@@ -700,7 +701,7 @@ int getNextUsedPage(RecordIterator* iterator, Page* page, int *directory){
         //bzero(directory, (iterator->hf)->page_size);
         fseek(heapfile->file_ptr, iterator->current_directory_page[heapfile->directory_num_pages - 2], SEEK_SET);
 
-        printf("@new directory start at %d\n", iterator->current_directory_page[heapfile->directory_num_pages - 2]);
+        //printf("@new directory start at %d\n", iterator->current_directory_page[heapfile->directory_num_pages - 2]);
         iterator->page_offset = iterator->current_directory_page[heapfile->directory_num_pages - 2];
         fread(directory, 1, heapfile->page_size, heapfile->file_ptr);
         iterator->page_id_in_directory = 0;
@@ -810,7 +811,7 @@ bool hasnext(RecordIterator* iterator, Page* page, Record *record, int *director
             }
             
         }
-        printf("No next record found...\n");
+        //printf("No next record found...\n");
         return false;
     }
 
@@ -854,7 +855,7 @@ int find_FreeSlot(Page *page){
             if(counter > num_slots){
                 return -1;
             }
-            printf("num slot is %d\n", counter);
+            //printf("num slot is %d\n", counter);
             int bit = *byte & 1 << j; //check bit 1 or 0
             if(bit){
                 continue;
@@ -1048,14 +1049,12 @@ int select3(char *colstore_file, char *attribute_id, char *start, char *end, cha
     //int pages_num = 0;
 
     // start timer
-    struct timeb t;
-    ftime(&t);
-    unsigned long start_ms = t.time * 1000 + t.millitm;
+   
     //char buf[page_size];
 
     /* Initialize the heapfile*/
     Heapfile heapfile;
-    printf("colstore_file is %s\n", colstore_file);
+    //printf("colstore_file is %s\n", colstore_file);
     init_heapfile(&heapfile, page_size, fp_read_heapfile, 0, (char *)colstore_file);
     
     Page page;
@@ -1096,11 +1095,15 @@ int select3(char *colstore_file, char *attribute_id, char *start, char *end, cha
             //printf("substring is %.*s, ", 5, substring);
 
             if(mode == 1){
+               // printf("hi\n");
                 if(slot == result[to_check]){
-                    printf("\n\nSlotID: %d\n", slot);
-                    printf("Extracted value-> %.*s\n", 5 ,substring);
+                    //printf("\n\nSlotID: %d\n", slot);
+                    //printf("Extracted value-> %.*s\n", 5 ,substring);
+                    printf("%.*s, ", 5 ,substring);
                     to_check++;
+                    //printf("hi1\n");
                 }
+                //printf("h\n");
             }
             
             if(mode == 0){
@@ -1138,14 +1141,7 @@ int select3(char *colstore_file, char *attribute_id, char *start, char *end, cha
 
 
     // stop timer
-    ftime(&t);
-    unsigned long stop_ms = t.time * 1000 + t.millitm;
-
-
-    //printf("\n\nNUMBER OF RECORDS: %d\n", records_num);
-    //printf("NUMBER OF PAGES:: %d\n", record_iterator.page_num);
-    //printf("NUMBER OF DIRECTORIES:: %d\n", record_iterator.d_num);
-    printf("Time used to write the file: %lums.\n", stop_ms - start_ms);
+    
 
 
     return 0;

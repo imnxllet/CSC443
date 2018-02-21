@@ -5,6 +5,7 @@
 #define RECORD_REAL_SIZE 1100
 #define RECORD_SIZE 1000
 #define ATTRIBUTE_NUM 100
+#define MAX_BUF 2000000
 
 //typedef const char* V;
 typedef Vector Record;

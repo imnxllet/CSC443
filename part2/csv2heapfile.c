@@ -61,7 +61,7 @@ int main(int argc, const char * argv[]) {
     init_heapfile(&heapfile, page_size, fp_write_heapfile, 0, (char *)heap_filename);
     PageID current_pid;
     while ((read = getline(&line, &len, fp_read_csv)) != -1) {
-        printf("!start writing record #%d...\n", records_num + 1);
+        //printf("!start writing record #%d...\n", records_num + 1);
         records_num++;
         //Doubt this..
         Record record;
@@ -84,11 +84,11 @@ int main(int argc, const char * argv[]) {
             }
             //printf("Allocating space to this new page in heapfile...\n");
             current_pid = alloc_page(&heapfile, &page);
-            printf("Allocated a page on heap, pid = %d.\n\n", (int) current_pid);
+            //printf("Allocated a page on heap, pid = %d.\n\n", (int) current_pid);
         }
 
         if(page.free_slots == 0){/* Write to file and Initialize a new one */
-            printf("Page is full, write it to heapfile \n");
+            //printf("Page is full, write it to heapfile \n");
             write_page(&page, &heapfile, current_pid);
             fflush(heapfile.file_ptr);
 
@@ -99,7 +99,7 @@ int main(int argc, const char * argv[]) {
 
             
             current_pid = alloc_page(&heapfile, &page);
-            printf("Allocated a page on heap, pid = %d.\n\n", (int) current_pid);
+            //printf("Allocated a page on heap, pid = %d.\n\n", (int) current_pid);
             pages_num++;
             new_page = 0;
             if(add_fixed_len_page(&page, &record) == -1){
@@ -118,7 +118,7 @@ int main(int argc, const char * argv[]) {
         //free(&record);
 
     }
-    printf("Last record done.. write page to heapfile \n");
+    //printf("Last record done.. write page to heapfile \n");
 
 
     write_page(&page, &heapfile, current_pid);
@@ -155,7 +155,7 @@ int main(int argc, const char * argv[]) {
     printf("NUMBER OF DIRECTORIES:: %d\n", heapfile.d_num);
     printf("NUMBER OF data Page in a D:: %d\n", heapfile.directory_num_pages / 2 - 1);
     
-    printf("Time used to write the file: %lums.\n", stop_ms - start_ms);
+    printf("Time used to write the file: %lums.\n\n", stop_ms - start_ms);
 
 
     return 0;

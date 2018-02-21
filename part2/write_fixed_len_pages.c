@@ -54,7 +54,7 @@ int main(int argc, const char * argv[]) {
 
         if(new_page){
             init_fixed_len_page(&page, page_size, fixed_len_sizeof(&record));
-            printf("making a new page..\n");
+            //printf("making a new page..\n");
             pages_num++;
             new_page = 0;
             if(page.free_slots == 0){
@@ -64,10 +64,10 @@ int main(int argc, const char * argv[]) {
         }
 
         if(page.free_slots == 0){/* Write to file and Initialize a new one */
-            printf("Page is full, make a new one and add a new record\n");
+            //printf("Page is full, make a new one and add a new record\n");
             fwrite((const char *)page.data, sizeof(char), page_size, fp_write_page);
             fflush(fp_write_page);
-            printf("!!Iam here...\n");
+            //printf("!!Iam here...\n");
 
             free(page.data);
 
@@ -80,7 +80,7 @@ int main(int argc, const char * argv[]) {
             }
 
         }else{
-            printf("Adding a new record..\n");
+            //printf("Adding a new record..\n");
             if(add_fixed_len_page(&page, &record) == -1){
                 printf("Record size > slot size, cannot add to pade.\n");
                 return -1;
@@ -96,7 +96,8 @@ int main(int argc, const char * argv[]) {
     //free(&page);
     
     fflush(fp_write_page);
-
+    ftime(&t);
+    unsigned long stop_ms = t.time * 1000 + t.millitm;
 
 
     fclose(fp_read_csv);
@@ -106,13 +107,15 @@ int main(int argc, const char * argv[]) {
 
 
     // stop timer
-    ftime(&t);
-    unsigned long stop_ms = t.time * 1000 + t.millitm;
 
 
+    printf("PAGE SIZE: %d\n", page_size);
     printf("NUMBER OF RECORDS: %d\n", records_num);
     printf("NUMBER OF PAGES:: %d\n", pages_num);
+
     printf("Time used to write the file: %lums.\n", stop_ms - start_ms);
+    printf("RATE(RECORD/S): %lu\n\n", records_num/ (stop_ms - start_ms) * 1000);
+
 
 
     return 0;

@@ -42,7 +42,7 @@ int main(int argc, const char * argv[]) {
     rewind(fp_read_csv);
     int num_records = size / RECORD_REAL_SIZE;
 
-    printf("There is %d records in csv\n", num_records);
+    //printf("There is %d records in csv\n", num_records);
 
     Record all_records;
     vector_setup(&all_records, num_records, RECORD_SIZE);
@@ -139,7 +139,7 @@ int main(int argc, const char * argv[]) {
             
             record_left -= j;
 
-            printf("processed %d records\n", record_processed);
+            //printf("processed %d records\n", record_processed);
 
             /* First record, initialize a new directory and page */
             if(new_page){
@@ -155,11 +155,11 @@ int main(int argc, const char * argv[]) {
                 }
                 //printf("Allocating space to this new page in heapfile...\n");
                 current_pid = alloc_page(&heapfile, &page);
-                printf("Allocated a page on heap, pid = %d.\n\n", (int) current_pid);
+                //printf("Allocated a page on heap, pid = %d.\n\n", (int) current_pid);
             }
 
             if(page.free_slots == 0){/* Write to file and Initialize a new one */
-                printf("Page is full, write it to heapfile \n");
+                //printf("Page is full, write it to heapfile \n");
                 write_page(&page, &heapfile, current_pid);
                 fflush(heapfile.file_ptr);
 
@@ -170,7 +170,7 @@ int main(int argc, const char * argv[]) {
 
                 
                 current_pid = alloc_page(&heapfile, &page);
-                printf("Allocated a page on heap, pid = %d.\n\n", (int) current_pid);
+                //printf("Allocated a page on heap, pid = %d.\n\n", (int) current_pid);
                 pages_num++;
                 new_page = 0;
                 if(add_fixed_len_page(&page, &record) == -1){
@@ -195,12 +195,12 @@ int main(int argc, const char * argv[]) {
         write_page(&page, &heapfile, current_pid);
         fflush(heapfile.file_ptr);
         fclose(fp_write_heapfile);
-        printf("!start writing record #%d...\n", records_num + 1);
+        //printf("!start writing record #%d...\n", records_num + 1);
         
         //Doubt this..
-        printf("NUMBER OF RECORDS: %d\n", records_num);
-        printf("NUMBER OF PAGES:: %d\n", pages_num);
-        printf("NUMBER OF DIRECTORIES:: %d\n", heapfile.d_num);
+        //printf("NUMBER OF RECORDS: %d\n", records_num);
+        //printf("NUMBER OF PAGES:: %d\n", pages_num);
+        //printf("NUMBER OF DIRECTORIES:: %d\n\n", heapfile.d_num);
         //printf("NUMBER OF data Page in a D:: %d\n", heapfile.directory_num_pages / 2 - 1);
         
         //free(&record);
@@ -236,7 +236,7 @@ int main(int argc, const char * argv[]) {
 
     
     
-    printf("Time used to write the file: %lums.\n", stop_ms - start_ms);
+    printf("Time used to create the files and directory: %lums.\n\n", stop_ms - start_ms);
 
 
     return 0;
